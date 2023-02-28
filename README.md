@@ -27,5 +27,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: new-relic-exporter
-        uses: actions/gha-new-relic-exporter@latest
+        uses: dpacheconr/gha-new-relic-exporter@latest
 ```
