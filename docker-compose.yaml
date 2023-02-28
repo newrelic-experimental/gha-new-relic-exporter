@@ -1,0 +1,8 @@
+version: '3.9'
+services:
+  new-relic-exporter:
+    environment:
+      - VERSION=$VERSION
+    build:
+      context: ./new-relic-exporter
+    image: docker.io/dpacheconr/gha-exporter:$VERSION

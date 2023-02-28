@@ -1,10 +1,3 @@
-# WORK IN PROGRESS
-
-Configure your New Relic API Key as `NEW_RELIC_API_KEY` and Github token as `GHA_TOKEN` in your repository secrets
-
-Add `new-relic-exporter.yaml` to .github/workflows, example below
-
-```
 name: new-relic-exporter
 
 on:
@@ -27,5 +20,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: new-relic-exporter
-        uses: actions/gha-new-relic-exporter@latest
-```
+        uses: ./new-relic-exporter
+

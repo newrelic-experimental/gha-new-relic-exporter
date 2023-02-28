@@ -1,0 +1,12 @@
+opentelemetry.api
+opentelemetry.sdk
+python-gitlab
+opentelemetry.exporter.otlp.proto.grpc
+opentelemetry.instrumentation.logging
+pyrfc3339
+zulu
+schedule
+ghapi
+requests
+
+
