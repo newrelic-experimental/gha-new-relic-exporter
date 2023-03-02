@@ -33,7 +33,7 @@ else:
         OTEL_EXPORTER_OTEL_ENDPOINT = "https://otlp.nr-data.net:4318"
 endpoint="{}".format(OTEL_EXPORTER_OTEL_ENDPOINT)
 headers="api-key={}".format(NEW_RELIC_API_KEY)
-api = GhApi(owner=GITHUB_REPOSITORY_OWNER, repo=GHA_SERVICE_NAME, token=str(GHA_TOKEN))
+api = GhApi(owner=GITHUB_REPOSITORY_OWNER, repo=GHA_SERVICE_NAME.split('/')[1], token=str(GHA_TOKEN))
 get_workflow_run_by_run_id = do_fastcore_decode(api.actions.get_workflow_run(GHA_RUN_ID))
 get_workflow_run_jobs_by_run_id = do_fastcore_decode(api.actions.list_jobs_for_workflow_run(GHA_RUN_ID))
 
