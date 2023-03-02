@@ -22,6 +22,7 @@ GHA_TOKEN = os.getenv('GHA_TOKEN')
 NEW_RELIC_API_KEY = os.getenv('NEW_RELIC_API_KEY')
 GHA_RUN_ID = os.getenv('GHA_RUN_ID')
 GHA_SERVICE_NAME=os.getenv('GITHUB_REPOSITORY')
+GITHUB_REPOSITORY_OWNER=os.getenv('GITHUB_REPOSITORY_OWNER')
 GHA_RUN_NAME=os.getenv('GHA_RUN_NAME')
 if "OTEL_EXPORTER_OTEL_ENDPOINT" in os.environ:
     OTEL_EXPORTER_OTEL_ENDPOINT = os.getenv('OTEL_EXPORTER_OTEL_ENDPOINT')
@@ -32,7 +33,7 @@ else:
         OTEL_EXPORTER_OTEL_ENDPOINT = "https://otlp.nr-data.net:4318"
 endpoint="{}".format(OTEL_EXPORTER_OTEL_ENDPOINT)
 headers="api-key={}".format(NEW_RELIC_API_KEY)
-api = GhApi(owner='dpacheconr', repo='github-actions-integration', token=str(GHA_TOKEN))
+api = GhApi(owner=GITHUB_REPOSITORY_OWNER, repo=GHA_SERVICE_NAME, token=str(GHA_TOKEN))
 get_workflow_run_by_run_id = do_fastcore_decode(api.actions.get_workflow_run(GHA_RUN_ID))
 get_workflow_run_jobs_by_run_id = do_fastcore_decode(api.actions.list_jobs_for_workflow_run(GHA_RUN_ID))
 
