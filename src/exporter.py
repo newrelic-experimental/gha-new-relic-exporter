@@ -104,7 +104,7 @@ for job in job_lst:
         child_1.set_attributes(create_resource_attributes(parse_attributes(step,""),GHA_SERVICE_NAME))
         with trace.use_span(child_1, end_on_exit=False):
             # Parse logs
-            with open ("./logs/"+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'])+".txt") as f:
+            with open ("./logs/"+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt") as f:
                 for line in f.readlines():
                     line_to_add = line[29:-1].strip()
                     len_line_to_add =  len(line_to_add)
