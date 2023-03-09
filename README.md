@@ -1,5 +1,3 @@
-# WORK IN PROGRESS
-
 Configure your New Relic API Key as `NEW_RELIC_API_KEY` and Github token as `GHA_TOKEN` in your repository secrets
 
 Add `new-relic-exporter.yaml` to .github/workflows, example below
