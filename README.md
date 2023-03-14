@@ -1,6 +1,19 @@
 
 [![New Relic Experimental header](https://github.com/newrelic/opensource-website/raw/master/src/images/categories/Experimental.png)](https://opensource.newrelic.com/oss-category/#new-relic-experimental)
 
+
+## How to monitor Github Actions with New Relic
+Now, you can monitor your Github Actions with New Relic using Github Actions New Relic Exporter, making it easier to get observability into your CI/CD workflows health and performance.
+
+You will be able to:
+
+Visualise key metrics on your Github Actions, such as how long your workflow/jobs/steps are taking, how often they are failing.
+Visualise jobs/steps as distributed traces with logs in context
+Pinpoint where issues are coming from in your workflows
+Create alerts on your Github Actions.
+
+## How to 
+
 Configure your New Relic API Key as `NEW_RELIC_API_KEY` and Github token as `GHA_TOKEN` in your repository secrets
 
 Add `new-relic-exporter.yaml` to .github/workflows
@@ -33,7 +46,7 @@ jobs:
 
 ## Contributing
 
-We encourage your contributions to improve [Github Action Exporter](../../)! Keep in mind when you submit your pull request, you'll need to sign the CLA via the click-through using CLA-Assistant. You only have to sign the CLA one time per project. If you have any questions, or to execute our corporate CLA, required if your contribution is on behalf of a company, please drop us an email at opensource@newrelic.com.
+We encourage your contributions to improve [Github Actions New Relic Exporter](../../)! Keep in mind when you submit your pull request, you'll need to sign the CLA via the click-through using CLA-Assistant. You only have to sign the CLA one time per project. If you have any questions, or to execute our corporate CLA, required if your contribution is on behalf of a company, please drop us an email at opensource@newrelic.com.
 
 **A note about vulnerabilities**
 
@@ -43,9 +56,9 @@ If you believe you have found a security vulnerability in this project or any of
 
 ## License
 
-Github Action Exporter is licensed under the [Apache 2.0](http://apache.org/licenses/LICENSE-2.0.txt) License.
+Github Actions New Relic Exporter is licensed under the [Apache 2.0](http://apache.org/licenses/LICENSE-2.0.txt) License.
 
->Github Action Exporter also use source code from third-party libraries. You can find full details on which libraries are used and the terms under which they are licensed in the third-party notices document.
+>Github Actions New Relic Exporter also use source code from third-party libraries. You can find full details on which libraries are used and the terms under which they are licensed in the third-party notices document.
 
 
 
