@@ -2,13 +2,6 @@
 name: New Relic OpenTelemetry Github Actions Exporter
 description: Exports Workflow Run Telemetry as traces with logs in context over OLTP
 author: dpacheconr
-inputs:
-  githubToken:
-    description: The repository token with Workflow permissions. i.e. secrets.GITHUB_TOKEN
-    required: true
-  newRelicApiKey:
-    description: Workflow Run ID to Export. Defaults to env.GITHUB_RUN_ID
-    required: true
 
 runs:
   using: 'docker'
