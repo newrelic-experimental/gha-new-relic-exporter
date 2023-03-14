@@ -7,10 +7,10 @@ Now, you can monitor your Github Actions with New Relic using Github Actions New
 
 You will be able to:
 
-Visualise key metrics on your Github Actions, such as how long your workflow/jobs/steps are taking, how often they are failing.
-Visualise jobs/steps as distributed traces with logs in context
-Pinpoint where issues are coming from in your workflows
-Create alerts on your Github Actions.
+- Visualise key metrics on your Github Actions, such as how long your workflow/jobs/steps are taking, how often they are failing.
+- Visualise jobs/steps as distributed traces with logs in context
+- Pinpoint where issues are coming from in your workflows
+- Create alerts on your Github Actions.
 
 ## How to 
 
