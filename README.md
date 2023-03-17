@@ -20,10 +20,15 @@ Before setting up the integration, you will need a New Relic ingest API key.
 
 
 1. Configure your New Relic API key as secret in your repository, called it `NEW_RELIC_API_KEY`
-2. The exporter uses automatic token authentication by default, for this you need to ensure that GITHUB_TOKEN has at least read access to the action scope. Alternatively, you can use a Personal Access Token, in this case, configure your PAT token as secret in your repository, called it `GHA_TOKEN`
+2. The exporter uses automatic token authentication by default, for this you need to ensure that `GITHUB_TOKEN` has at least read access to the action scope. Alternatively, you can use a Personal Access Token, in this case, configure your PAT token as secret in your repository, called it `GHA_TOKEN`
 
 
-Add `new-relic-exporter.yaml` to .github/workflows
+Create your workflow yaml with below configuration, under .github/workflows, called it `new-relic-exporter.yaml` for example.
+
+Amend env: section according to the token method in use.
+`GHA_TOKEN: ${{ secrets.GITHUB_TOKEN }}` for automatic token authentication
+`GHA_TOKEN: ${{ secrets.GHA_TOKEN }}` for PAT token authentication
+
 
 ```
 name: new-relic-exporter
