@@ -31,11 +31,6 @@ def get_logger(endpoint, headers, resource, name):
     logger.addHandler(handler)
     return logger
 
-def get_meter(endpoint, headers, resource, meter):
-    reader = PeriodicExportingMetricReader(OTLPMetricExporter(endpoint=endpoint,headers=headers))
-    provider = MeterProvider(resource=resource, metric_readers=[reader])
-    meter = metrics.get_meter(__name__,meter_provider=provider)
-    return meter
 
 def get_tracer(endpoint, headers, resource, tracer):
     processor = BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint,headers=headers))
@@ -44,3 +39,10 @@ def get_tracer(endpoint, headers, resource, tracer):
     tracer = trace.get_tracer(__name__, tracer_provider=tracer)
 
     return tracer
+
+# todo
+# def get_meter(endpoint, headers, resource, meter):
+#     reader = PeriodicExportingMetricReader(OTLPMetricExporter(endpoint=endpoint,headers=headers))
+#     provider = MeterProvider(resource=resource, metric_readers=[reader])
+#     meter = metrics.get_meter(__name__,meter_provider=provider)
+#     return meter

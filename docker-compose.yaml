@@ -4,5 +4,5 @@ services:
     environment:
       - VERSION=$VERSION
     build:
-      context: ./new-relic-exporter
+      context: ./
     image: docker.io/dpacheconr/gha-exporter:$VERSION

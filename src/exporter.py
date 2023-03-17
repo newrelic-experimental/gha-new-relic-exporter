@@ -18,22 +18,32 @@ import dateutil.parser as dp
 check_env_vars()
 
 # Configure env variables
-GHA_TOKEN = os.getenv('GHA_TOKEN')
+if "GITHUB_TOKEN" in os.getenv('GITHUB_TOKEN'):
+    GHA_TOKEN = os.getenv('GITHUB_TOKEN')
+else:
+    if "GHA_TOKEN" in os.getenv('GHA_TOKEN'):
+        GHA_TOKEN = os.getenv('GHA_TOKEN')
+    else:
+        print("Neiter GITHUB_TOKEN or GHA_TOKEN are currently available, check your configuration")  
+          
 NEW_RELIC_API_KEY = os.getenv('NEW_RELIC_API_KEY')
 GHA_RUN_ID = os.getenv('GHA_RUN_ID')
 GHA_SERVICE_NAME=os.getenv('GITHUB_REPOSITORY')
 GITHUB_REPOSITORY_OWNER=os.getenv('GITHUB_REPOSITORY_OWNER')
 GHA_RUN_NAME=os.getenv('GHA_RUN_NAME')
-if "OTEL_EXPORTER_OTEL_ENDPOINT" in os.environ:
-    OTEL_EXPORTER_OTEL_ENDPOINT = os.getenv('OTEL_EXPORTER_OTEL_ENDPOINT')
-else: 
-    if NEW_RELIC_API_KEY.startswith("eu"):
-        OTEL_EXPORTER_OTEL_ENDPOINT = "https://otlp.eu01.nr-data.net:4318"
-    else:
-        OTEL_EXPORTER_OTEL_ENDPOINT = "https://otlp.nr-data.net:4318"
+
+if NEW_RELIC_API_KEY.startswith("eu"):
+    OTEL_EXPORTER_OTEL_ENDPOINT = "https://otlp.eu01.nr-data.net:4318"
+else:
+    OTEL_EXPORTER_OTEL_ENDPOINT = "https://otlp.nr-data.net:4318"
+        
 endpoint="{}".format(OTEL_EXPORTER_OTEL_ENDPOINT)
 headers="api-key={}".format(NEW_RELIC_API_KEY)
+
+# Github API client
 api = GhApi(owner=GITHUB_REPOSITORY_OWNER, repo=GHA_SERVICE_NAME.split('/')[1], token=str(GHA_TOKEN))
+
+# Github API calls
 get_workflow_run_by_run_id = do_fastcore_decode(api.actions.get_workflow_run(GHA_RUN_ID))
 get_workflow_run_jobs_by_run_id = do_fastcore_decode(api.actions.list_jobs_for_workflow_run(GHA_RUN_ID))
 
