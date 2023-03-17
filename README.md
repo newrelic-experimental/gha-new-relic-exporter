@@ -8,13 +8,20 @@ Now, you can monitor your Github Actions with New Relic using Github Actions New
 You will be able to:
 
 - Visualise key metrics on your Github Actions, such as how long your workflow/jobs/steps are taking, how often they are failing.
-- Visualise jobs/steps as distributed traces with logs in context
+- Visualise workflows/jobs and steps as distributed traces with logs in context
 - Pinpoint where issues are coming from in your workflows
-- Create alerts on your Github Actions.
+- Create alerts on your workflows.
 
 ## How to 
 
-Configure your New Relic API Key as `NEW_RELIC_API_KEY` and Github token as `GHA_TOKEN` in your repository secrets
+Configuring the exporter
+
+Before setting up the integration, you will need a New Relic ingest API key.
+
+
+1. Configure your New Relic API key as secret in your repository, called it `NEW_RELIC_API_KEY`
+2. The exporter uses automatic token authentication by default, for this you need to ensure that GITHUB_TOKEN has at least read access to the action scope. Alternatively, you can use a Personal Access Token, in this case, configure your PAT token as secret in your repository, called it `GHA_TOKEN`
+
 
 Add `new-relic-exporter.yaml` to .github/workflows
 
