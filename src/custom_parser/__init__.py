@@ -19,7 +19,7 @@ def do_parse(string):
     return string != "" and string is not None and string != "None"
 
 def check_env_vars():
-    keys = ("NEW_RELIC_API_KEY")
+    keys = ("NEW_RELIC_API_KEY","GHA_TOKEN")
     keys_not_set = []
 
     for key in keys:

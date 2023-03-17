@@ -1,7 +1,7 @@
 from ghapi.all import GhApi
 import os
 import json
-from custom_parser import do_time,do_fastcore_decode,check_env_vars,parse_attributes
+from custom_parser import do_time,do_fastcore_decode,parse_attributes,check_env_vars
 import json
 import logging
 import os
@@ -14,18 +14,11 @@ import requests
 import zipfile
 import dateutil.parser as dp
 
-# Check compulsory env variables are set
+# Check if compulsory env variables are configured
 check_env_vars()
 
 # Configure env variables
-if "GITHUB_TOKEN" in os.getenv('GITHUB_TOKEN'):
-    GHA_TOKEN = os.getenv('GITHUB_TOKEN')
-else:
-    if "GHA_TOKEN" in os.getenv('GHA_TOKEN'):
-        GHA_TOKEN = os.getenv('GHA_TOKEN')
-    else:
-        print("Neiter GITHUB_TOKEN or GHA_TOKEN are currently available, check your configuration")  
-          
+GHA_TOKEN = os.getenv('GHA_TOKEN')
 NEW_RELIC_API_KEY = os.getenv('NEW_RELIC_API_KEY')
 GHA_RUN_ID = os.getenv('GHA_RUN_ID')
 GHA_SERVICE_NAME=os.getenv('GITHUB_REPOSITORY')

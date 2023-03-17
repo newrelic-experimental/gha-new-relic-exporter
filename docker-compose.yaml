@@ -1,6 +1,7 @@
 version: '3.9'
 services:
   new-relic-exporter:
+    platform: linux/amd64
     environment:
       - VERSION=$VERSION
     build:
