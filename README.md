@@ -34,7 +34,7 @@ on:
     types: [completed] # defaults to run on every completed workflow run event
   
 env:
-  GHA_TOKEN: ${{ secrets.GHA_TOKEN }}
+  GHA_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   NEW_RELIC_API_KEY: ${{ secrets.NEW_RELIC_API_KEY }}
   GHA_RUN_ID: ${{ github.event.workflow_run.id }}
   GHA_RUN_NAME: ${{ github.event.workflow_run.name }}
