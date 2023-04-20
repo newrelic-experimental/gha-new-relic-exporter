@@ -6,4 +6,4 @@ services:
       - VERSION=$VERSION
     build:
       context: ./
-    image: docker.io/dpacheconr/gha-exporter:$VERSION
+    image: docker.io/newrelic-experimental/gha-exporter:$VERSION

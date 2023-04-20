@@ -19,7 +19,7 @@ def do_parse(string):
     return string != "" and string is not None and string != "None"
 
 def check_env_vars():
-    keys = ("NEW_RELIC_API_KEY","GHA_TOKEN")
+    keys = ("NEW_RELIC_LICENSE_KEY","GHA_TOKEN")
     keys_not_set = []
 
     for key in keys:
@@ -28,7 +28,7 @@ def check_env_vars():
     else:
         pass
 
-    if len(keys_not_set) > 0: 
+    if len(keys_not_set) > 0:
         for key in keys_not_set:
             print(key + " not set")
         exit(1)
@@ -39,7 +39,7 @@ def parse_attributes(obj,att_to_drop):
     # todo
     # if "GHA_ATTRIBUTES_DROP" in os.environ:
     #     try:
-    #         if os.getenv("GHA_ATTRIBUTES_DROP") != "": 
+    #         if os.getenv("GHA_ATTRIBUTES_DROP") != "":
     #             user_attributes_to_drop =str(os.getenv("GHA_ATTRIBUTES_DROP")).lower().split(",")
     #             for attribute in user_attributes_to_drop:
     #                 attributes_to_drop.append(attribute)

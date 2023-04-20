@@ -19,19 +19,19 @@ check_env_vars()
 
 # Configure env variables
 GHA_TOKEN = os.getenv('GHA_TOKEN')
-NEW_RELIC_API_KEY = os.getenv('NEW_RELIC_API_KEY')
+NEW_RELIC_LICENSE_KEY = os.getenv('NEW_RELIC_LICENSE_KEY')
 GHA_RUN_ID = os.getenv('GHA_RUN_ID')
 GHA_SERVICE_NAME=os.getenv('GITHUB_REPOSITORY')
 GITHUB_REPOSITORY_OWNER=os.getenv('GITHUB_REPOSITORY_OWNER')
 GHA_RUN_NAME=os.getenv('GHA_RUN_NAME')
 
-if NEW_RELIC_API_KEY.startswith("eu"):
+if NEW_RELIC_LICENSE_KEY.startswith("eu"):
     OTEL_EXPORTER_OTEL_ENDPOINT = "https://otlp.eu01.nr-data.net:4318"
 else:
     OTEL_EXPORTER_OTEL_ENDPOINT = "https://otlp.nr-data.net:4318"
-        
+
 endpoint="{}".format(OTEL_EXPORTER_OTEL_ENDPOINT)
-headers="api-key={}".format(NEW_RELIC_API_KEY)
+headers="api-key={}".format(NEW_RELIC_LICENSE_KEY)
 
 # Github API client
 api = GhApi(owner=GITHUB_REPOSITORY_OWNER, repo=GHA_SERVICE_NAME.split('/')[1], token=str(GHA_TOKEN))
@@ -54,7 +54,7 @@ logging.basicConfig(filename="exporter.log")
 #Set workflow level tracer and logger
 global_resource = Resource(attributes=global_attributes)
 tracer = get_tracer(endpoint, headers, global_resource, "tracer")
-   
+
 
 #Ensure we don't export data for new relic exporters
 workflow_run = json.loads(get_workflow_run_jobs_by_run_id)
@@ -62,7 +62,7 @@ job_lst=[]
 for job in workflow_run['jobs']:
     if str(job['name']).lower() not in ["new-relic-exporter"]:
         job_lst.append(job)
-        
+
 if len(job_lst) == 0:
     print("No data to export, assuming this github action workflow job is a new relic exporter")
     exit(0)
@@ -96,7 +96,7 @@ for job in job_lst:
     child_0 = tracer.start_span(name=str(job['name']),context=pcontext,start_time=do_time(job['started_at']), kind=trace.SpanKind.CONSUMER)
     child_0.set_attributes(create_resource_attributes(parse_attributes(job,"steps"),GHA_SERVICE_NAME))
     p_sub_context = trace.set_span_in_context(child_0)
-    
+
     # Steps trace span
     for step in job['steps']:
         # Set steps tracer and logger
@@ -128,7 +128,7 @@ for job in job_lst:
                         # Send the log events
                         job_logger = get_logger(endpoint,headers,resource_log, "job_logger")
                         job_logger.info("")
-                        
+
         child_1.end(end_time=do_time(step['completed_at']))
     child_0.end(end_time=do_time(job['completed_at']))
     workflow_run_finish_time=do_time(job['completed_at'])

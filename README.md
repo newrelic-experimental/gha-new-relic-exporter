@@ -8,18 +8,19 @@ Now, you can monitor your Github Actions with New Relic using Github Actions New
 You will be able to:
 
 - Visualise key metrics on your Github Actions, such as how long your workflow/jobs/steps are taking, how often they are failing.
-- Visualise workflows/jobs and steps as distributed traces with logs in context
+- Visualise workflows/jobs and steps as distributed traces with logs in context, reported to an OTEL service entity with New Relic
 - Pinpoint where issues are coming from in your workflows
 - Create alerts on your workflows.
 
-## How to 
+
+## How to
 
 Configuring the exporter
 
-Before setting up the integration, you will need a New Relic ingest API key.
+Before setting up the integration, you will need a [New Relic license/ingest API key](https://docs.newrelic.com/docs/apis/intro-apis/new-relic-api-keys/#license-key).
 
 
-1. Configure your New Relic API key as secret in your repository, called it `NEW_RELIC_API_KEY`
+1. Configure your New Relic license key as a secret in your repository, and call it `NEW_RELIC_LICENSE_KEY`
 2. The exporter uses automatic token authentication by default, for this you need to ensure that `GITHUB_TOKEN` has at least read access to the action scope. Alternatively, you can use a Personal Access Token, in this case, configure your PAT token as secret in your repository, called it `GHA_TOKEN`
 
 
@@ -37,10 +38,10 @@ on:
   workflow_run:
     workflows: ['*']
     types: [completed] # defaults to run on every completed workflow run event
-  
+
 env:
   GHA_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  NEW_RELIC_API_KEY: ${{ secrets.NEW_RELIC_API_KEY }}
+  NEW_RELIC_LICENSE_KEY: ${{ secrets.NEW_RELIC_LICENSE_KEY }}
   GHA_RUN_ID: ${{ github.event.workflow_run.id }}
   GHA_RUN_NAME: ${{ github.event.workflow_run.name }}
 
@@ -53,8 +54,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: new-relic-exporter
-        uses: dpacheconr/gha-new-relic-exporter@latest
+        uses: newrelic-experimental/gha-new-relic-exporter@latest
 ```
+
+## Example
+
+See example repo here, using this action: https://github.com/khpeet/fy24sko-change-tracking
+
+Traces/Logs are viewable under an OTEL service entity in New Relic, named as your repo:
+![Overview](screenshots/tracing.png)
+
+Each workflow's run/execution steps can be viewed as spans, and logs are also captured, in context:
+![SingleTrace](screenshots/single_trace.png)
+![Logs](screenshots/logs.png)
+
+
+
 
 ## Contributing
 
@@ -71,17 +86,3 @@ If you believe you have found a security vulnerability in this project or any of
 Github Actions New Relic Exporter is licensed under the [Apache 2.0](http://apache.org/licenses/LICENSE-2.0.txt) License.
 
 >Github Actions New Relic Exporter also use source code from third-party libraries. You can find full details on which libraries are used and the terms under which they are licensed in the third-party notices document.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
