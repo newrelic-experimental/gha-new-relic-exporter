@@ -24,6 +24,7 @@ GHA_RUN_ID = os.getenv('GHA_RUN_ID')
 GHA_SERVICE_NAME=os.getenv('GITHUB_REPOSITORY')
 GITHUB_REPOSITORY_OWNER=os.getenv('GITHUB_REPOSITORY_OWNER')
 GHA_RUN_NAME=os.getenv('GHA_RUN_NAME')
+GITHUB_API_URL=os.getenv('GITHUB_API_URL')
 
 if NEW_RELIC_LICENSE_KEY.startswith("eu"):
     OTEL_EXPORTER_OTEL_ENDPOINT = "https://otlp.eu01.nr-data.net:4318"
@@ -81,7 +82,7 @@ req_headers = {
 'X-GitHub-Api-Version': '2022-11-28'
 }
 
-url1="https://api.github.com/repos/"+GHA_SERVICE_NAME.split("/")[0]+"/"+GHA_SERVICE_NAME.split("/")[1]+"/actions/runs/"+str(GHA_RUN_ID)+"/logs"
+url1=GITHUB_API_URL+"/repos/"+GHA_SERVICE_NAME.split("/")[0]+"/"+GHA_SERVICE_NAME.split("/")[1]+"/actions/runs/"+str(GHA_RUN_ID)+"/logs"
 r1=requests.get(url1,headers=req_headers)
 with open("log.zip",'wb') as output_file:
     output_file.write(r1.content)
