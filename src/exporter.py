@@ -43,10 +43,10 @@ get_workflow_run_jobs_by_run_id = do_fastcore_decode(api.actions.list_jobs_for_w
 
 #Set OTEL resources
 global_attributes={
-SERVICE_NAME: GHA_SERVICE_NAME,
-"workflow_run_id": GHA_RUN_ID,
-"github.source": "github-exporter",
-"github.resource.type": "span"
+    SERVICE_NAME: GHA_SERVICE_NAME,
+    "workflow_run_id": GHA_RUN_ID,
+    "github.source": "github-exporter",
+    "github.resource.type": "span"
 }
 
 LoggingInstrumentor().instrument(set_logging_format=True)
@@ -77,9 +77,9 @@ p_parent = tracer.start_span(name=str(GHA_RUN_NAME) + " - run: "+str(GHA_RUN_ID)
 # Have to use python requests due to known issue with ghapi -> https://github.com/fastai/ghapi/issues/119
 bearer = "Bearer " + GHA_TOKEN
 req_headers = {
-'Accept': 'application/vnd.github+json',
-'Authorization': "Bearer " + GHA_TOKEN,
-'X-GitHub-Api-Version': '2022-11-28'
+    'Accept': 'application/vnd.github+json',
+    'Authorization': "Bearer " + GHA_TOKEN,
+    'X-GitHub-Api-Version': '2022-11-28'
 }
 
 url1=GITHUB_API_URL+"/repos/"+GHA_SERVICE_NAME.split("/")[0]+"/"+GHA_SERVICE_NAME.split("/")[1]+"/actions/runs/"+str(GHA_RUN_ID)+"/logs"
@@ -108,27 +108,34 @@ for job in job_lst:
         child_1.set_attributes(create_resource_attributes(parse_attributes(step,""),GHA_SERVICE_NAME))
         with trace.use_span(child_1, end_on_exit=False):
             # Parse logs
-            with open ("./logs/"+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt") as f:
-                for line in f.readlines():
-                    line_to_add = line[29:-1].strip()
-                    len_line_to_add =  len(line_to_add)
-                    timestamp_to_add = line[0:23]
-                    if len_line_to_add > 0:
-                        if line_to_add.lower().startswith("##[error]"):
-                            child_1.set_status(Status(StatusCode.ERROR,line_to_add[9:]))
-                            child_0.set_status(Status(StatusCode.ERROR,"STEP: "+str(step['name'])+" failed"))
-                        resource_attributes["message"] = line_to_add
-                        # Convert ISO 8601 to timestamp
-                        parsed_t = dp.isoparse(timestamp_to_add)
-                        unix_timestamp = parsed_t.timestamp()*1000
-                        # Update resource attributes
-                        resource_attributes["log.timestamp"] = unix_timestamp
-                        resource_attributes["log.time"] = timestamp_to_add
-                        resource_attributes.update(create_resource_attributes(parse_attributes(step,""),GHA_SERVICE_NAME))
-                        resource_log = Resource(attributes=resource_attributes)
-                        # Send the log events
-                        job_logger = get_logger(endpoint,headers,resource_log, "job_logger")
-                        job_logger.info("")
+            try:
+                with open ("./logs/"+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt") as f:
+                    for line in f.readlines():
+                        line_to_add = line[29:-1].strip()
+                        len_line_to_add = len(line_to_add)
+                        timestamp_to_add = line[0:23]
+                        if len_line_to_add > 0:
+                            if line_to_add.lower().startswith("##[error]"):
+                                child_1.set_status(Status(StatusCode.ERROR,line_to_add[9:]))
+                                child_0.set_status(Status(StatusCode.ERROR,"STEP: "+str(step['name'])+" failed"))
+                            resource_attributes["message"] = line_to_add
+                            # Convert ISO 8601 to timestamp
+                            try:
+                                parsed_t = dp.isoparse(timestamp_to_add)
+                            except ValueError as e:
+                                print("Line does not start with a date. Skip for now")
+                                continue
+                            unix_timestamp = parsed_t.timestamp()*1000
+                            # Update resource attributes
+                            resource_attributes["log.timestamp"] = unix_timestamp
+                            resource_attributes["log.time"] = timestamp_to_add
+                            resource_attributes.update(create_resource_attributes(parse_attributes(step,""),GHA_SERVICE_NAME))
+                            resource_log = Resource(attributes=resource_attributes)
+                            # Send the log events
+                            job_logger = get_logger(endpoint,headers,resource_log, "job_logger")
+                            job_logger.info("")
+            except IOError as e:
+                print("Log file does not exist: "+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt")
 
         child_1.end(end_time=do_time(step['completed_at']))
     child_0.end(end_time=do_time(job['completed_at']))
