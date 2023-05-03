@@ -5,7 +5,7 @@ import ast
 import json
 
 def do_fastcore_decode(obj):
-    to_str_replace = str(obj).replace("\'", "\"")
+    to_str_replace = str(obj).replace("\"", "\\\"")
     valid_dict = ast.literal_eval(to_str_replace)
     return json.dumps(valid_dict)
 
