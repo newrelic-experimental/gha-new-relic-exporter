@@ -3,11 +3,11 @@ from pyrfc3339 import parse
 import os
 import ast
 import json
+from fastcore.xtras import obj2dict
 
 def do_fastcore_decode(obj):
-    to_str_replace = str(obj).replace("\"", "\\\"")
-    valid_dict = ast.literal_eval(to_str_replace)
-    return json.dumps(valid_dict)
+    newobj = obj2dict(obj)
+    return json.dumps(newobj)
 
 def do_time(string):
     return (int(round(time.mktime(parse(string).timetuple())) * 1000000000))
