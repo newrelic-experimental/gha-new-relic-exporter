@@ -1,6 +1,4 @@
 from ghapi.all import GhApi
-import os
-import json
 from custom_parser import do_time,do_fastcore_decode,parse_attributes,check_env_vars
 import json
 import logging
@@ -49,8 +47,10 @@ global_attributes={
     "github.resource.type": "span"
 }
 
-LoggingInstrumentor().instrument(set_logging_format=True)
-logging.basicConfig(filename="exporter.log")
+LoggingInstrumentor().instrument()
+# debug otel use configuration below
+# LoggingInstrumentor().instrument(set_logging_format=True,log_level=logging.DEBUG)
+# logging.basicConfig(filename="exporter.log",level=logging.DEBUG)
 
 #Set workflow level tracer and logger
 global_resource = Resource(attributes=global_attributes)
@@ -104,40 +104,36 @@ for job in job_lst:
         resource_attributes ={SERVICE_NAME: GHA_SERVICE_NAME,"github.source": "github-exporter","github.resource.type": "span"}
         resource_log = Resource(attributes=resource_attributes)
         step_tracer = get_tracer(endpoint, headers, resource_log, "step_tracer")
+        
+        resource_attributes.update(create_resource_attributes(parse_attributes(step,""),GHA_SERVICE_NAME))
+        resource_log = Resource(attributes=resource_attributes)
+        job_logger = get_logger(endpoint,headers,resource_log, "job_logger")
+        
         child_1 = step_tracer.start_span(name=str(step['name']),start_time=do_time(step['started_at']),context=p_sub_context,kind=trace.SpanKind.CONSUMER)
         child_1.set_attributes(create_resource_attributes(parse_attributes(step,""),GHA_SERVICE_NAME))
         with trace.use_span(child_1, end_on_exit=False):
             # Parse logs
             try:
                 with open ("./logs/"+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt") as f:
-                        for line in f.readlines():
-                            try:
-                                line_to_add = line[29:-1].strip()
-                                len_line_to_add = len(line_to_add)
-                                timestamp_to_add = line[0:23]
-                                if len_line_to_add > 0:
-                                    if line_to_add.lower().startswith("##[error]"):
-                                        child_1.set_status(Status(StatusCode.ERROR,line_to_add[9:]))
-                                        child_0.set_status(Status(StatusCode.ERROR,"STEP: "+str(step['name'])+" failed"))
-                                    resource_attributes["message"] = line_to_add
-                                    # Convert ISO 8601 to timestamp
-                                    try:
-                                        parsed_t = dp.isoparse(timestamp_to_add)
-                                    except ValueError as e:
-                                        print("Line does not start with a date. Skip for now")
-                                        continue
-                                    unix_timestamp = parsed_t.timestamp()*1000
-                                    # Update resource attributes
-                                    resource_attributes["log.timestamp"] = unix_timestamp
-                                    resource_attributes["log.time"] = timestamp_to_add
-                                    resource_attributes.update(create_resource_attributes(parse_attributes(step,""),GHA_SERVICE_NAME))
-                                    resource_log = Resource(attributes=resource_attributes)
-                                    # Send the log events
-                                    job_logger = get_logger(endpoint,headers,resource_log, "job_logger")
-                                    job_logger.info("")
-                            except Exception as e:
-                                print("Failed to process log line " + line  + "ERROR: " + e)
-                        
+                    for line in f.readlines():
+                        try:
+                            line_to_add = line[29:-1].strip()
+                            len_line_to_add = len(line_to_add)
+                            timestamp_to_add = line[0:23]
+                            if len_line_to_add > 0:
+                                if line_to_add.lower().startswith("##[error]"):
+                                    child_1.set_status(Status(StatusCode.ERROR,line_to_add[9:]))
+                                    child_0.set_status(Status(StatusCode.ERROR,"STEP: "+str(step['name'])+" failed"))
+                                # Convert ISO 8601 to timestamp
+                                try:
+                                    parsed_t = dp.isoparse(timestamp_to_add)
+                                except ValueError as e:
+                                    print("Line does not start with a date. Skip for now")
+                                    continue
+                                unix_timestamp = parsed_t.timestamp()*1000
+                                job_logger._log(level=logging.INFO,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
+                        except Exception as e:
+                            print("Error exporting log line ERROR: ", e)
             except IOError as e:
                 print("Log file does not exist: "+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt")
 
