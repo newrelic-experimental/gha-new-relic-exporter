@@ -136,7 +136,8 @@ for job in job_lst:
                             print("Error exporting log line ERROR: ", e)
             except IOError as e:
                 print("Log file does not exist: "+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt")
-
+        print("DEBUG:",step)
+        print("DEBUG:",job)
         child_1.end(end_time=do_time(step['completed_at']))
     child_0.end(end_time=do_time(job['completed_at']))
     workflow_run_finish_time=do_time(job['completed_at'])
