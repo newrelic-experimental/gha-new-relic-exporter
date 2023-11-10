@@ -121,7 +121,6 @@ for job in job_lst:
         #         step_started_at=step['started_at']
 
         if step['conclusion'] == 'skipped':
-            child_1.update_name(name=str(step['name']+"-SKIPPED"))
             if index >= 1:  
                 # Start time should be the previous step end time
                 step_started_at=job['steps'][index - 1]['completed_at']
@@ -157,7 +156,8 @@ for job in job_lst:
                 print("Log file does not exist: "+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt")
 
         if step['conclusion'] == 'skipped':
-            if index >= 1:  
+            child_1.update_name(name=str(step['name']+"-SKIPPED"))
+            if index >= 1:      
                 #End time should be the previous step end time
                 step_completed_at=job['steps'][index - 1]['completed_at']
             else:
