@@ -144,6 +144,8 @@ for job in job_lst:
         step_completed_at=job['started_at']
         if step['conclusion'] == 'success':
             step_completed_at=step['completed_at']
+        else:
+            child_1.set_status(Status(StatusCode.ERROR,step['conclusion']))
             
         child_1.end(end_time=do_time(step_completed_at))
     child_0.end(end_time=do_time(job['completed_at']))
