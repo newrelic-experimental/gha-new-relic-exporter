@@ -99,7 +99,7 @@ for job in job_lst:
     p_sub_context = trace.set_span_in_context(child_0)
 
     # Steps trace span
-    for step in job['steps']:
+    for index,step in enumerate(job['steps']):
         # Set steps tracer and logger
         resource_attributes ={SERVICE_NAME: GHA_SERVICE_NAME,"github.source": "github-exporter","github.resource.type": "span","workflow_run_id": GHA_RUN_ID}
         resource_log = Resource(attributes=resource_attributes)
@@ -141,7 +141,7 @@ for job in job_lst:
             except IOError as e:
                 print("Log file does not exist: "+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt")
 
-        step_completed_at=job['started_at']
+        step_completed_at=job['steps'][index - 1]['completed_at']
         if step['conclusion'] == 'success':
             step_completed_at=step['completed_at']
         else:
