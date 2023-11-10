@@ -101,7 +101,7 @@ for job in job_lst:
     # Steps trace span
     for step in job['steps']:
         # Set steps tracer and logger
-        resource_attributes ={SERVICE_NAME: GHA_SERVICE_NAME,"github.source": "github-exporter","github.resource.type": "span"}
+        resource_attributes ={SERVICE_NAME: GHA_SERVICE_NAME,"github.source": "github-exporter","github.resource.type": "span","workflow_run_id": GHA_RUN_ID}
         resource_log = Resource(attributes=resource_attributes)
         step_tracer = get_tracer(endpoint, headers, resource_log, "step_tracer")
         
@@ -136,8 +136,7 @@ for job in job_lst:
                             print("Error exporting log line ERROR: ", e)
             except IOError as e:
                 print("Log file does not exist: "+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt")
-        print("DEBUG:",step)
-        print("DEBUG:",job)
+
         child_1.end(end_time=do_time(step['completed_at']))
     child_0.end(end_time=do_time(job['completed_at']))
     workflow_run_finish_time=do_time(job['completed_at'])
