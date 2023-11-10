@@ -126,7 +126,11 @@ for job in job_lst:
                 step_started_at=job['steps'][index - 1]['completed_at']
             else:
                 step_started_at=job['started_at']
+        else:
+            step_started_at=step['started_at']
+
             
+                
         child_1 = step_tracer.start_span(name=str(step['name']),start_time=do_time(step_started_at),context=p_sub_context,kind=trace.SpanKind.CONSUMER)
         child_1.set_attributes(create_resource_attributes(parse_attributes(step,""),GHA_SERVICE_NAME))
         with trace.use_span(child_1, end_on_exit=False):
@@ -162,6 +166,8 @@ for job in job_lst:
                 step_completed_at=job['steps'][index - 1]['completed_at']
             else:
                 step_completed_at=job['started_at']
+        else:
+            step_completed_at=step['completed_at']
                             
         child_1.end(end_time=do_time(step_completed_at))
     child_0.end(end_time=do_time(job['completed_at']))
