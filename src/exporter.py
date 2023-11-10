@@ -109,9 +109,24 @@ for job in job_lst:
         resource_log = Resource(attributes=resource_attributes)
         job_logger = get_logger(endpoint,headers,resource_log, "job_logger")
         
-        step_started_at=job['started_at']
-        if step['conclusion'] == 'success':
-            step_started_at=step['started_at']
+        # if index >= 1:       
+        #     if step['conclusion'] != 'success':
+        #         step_started_at=job['steps'][index - 1]['completed_at']
+        #     else:
+        #         step_started_at=step['started_at']
+        # else:
+        #     if step['conclusion'] != 'success':
+        #         step_started_at=job['started_at']
+        #     else:
+        #         step_started_at=step['started_at']
+
+        if step['conclusion'] == 'skipped':
+            child_1.update_name(name=str(step['name']+"-SKIPPED"))
+            if index >= 1:  
+                # Start time should be the previous step end time
+                step_started_at=job['steps'][index - 1]['completed_at']
+            else:
+                step_completed_at=job['started_at']
             
         child_1 = step_tracer.start_span(name=str(step['name']),start_time=do_time(step_started_at),context=p_sub_context,kind=trace.SpanKind.CONSUMER)
         child_1.set_attributes(create_resource_attributes(parse_attributes(step,""),GHA_SERVICE_NAME))
@@ -141,13 +156,13 @@ for job in job_lst:
             except IOError as e:
                 print("Log file does not exist: "+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt")
 
-        step_completed_at=job['steps'][index - 1]['completed_at']
-        if step['conclusion'] == 'success':
-            step_completed_at=step['completed_at']
-        else:
-            if step['conclusion'] == 'skipped':
-                child_1.update_name(name=str(step['name']+"-SKIPPED"))
-            
+        if step['conclusion'] == 'skipped':
+            if index >= 1:  
+                #End time should be the previous step end time
+                step_completed_at=job['steps'][index - 1]['completed_at']
+            else:
+                step_completed_at=job['started_at']
+                            
         child_1.end(end_time=do_time(step_completed_at))
     child_0.end(end_time=do_time(job['completed_at']))
     workflow_run_finish_time=do_time(job['completed_at'])
