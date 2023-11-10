@@ -108,17 +108,6 @@ for job in job_lst:
         resource_attributes.update(create_resource_attributes(parse_attributes(step,""),GHA_SERVICE_NAME))
         resource_log = Resource(attributes=resource_attributes)
         job_logger = get_logger(endpoint,headers,resource_log, "job_logger")
-        
-        # if index >= 1:       
-        #     if step['conclusion'] != 'success':
-        #         step_started_at=job['steps'][index - 1]['completed_at']
-        #     else:
-        #         step_started_at=step['started_at']
-        # else:
-        #     if step['conclusion'] != 'success':
-        #         step_started_at=job['started_at']
-        #     else:
-        #         step_started_at=step['started_at']
 
         if step['conclusion'] == 'skipped':
             if index >= 1:  
@@ -127,9 +116,7 @@ for job in job_lst:
             else:
                 step_started_at=job['started_at']
         else:
-            step_started_at=step['started_at']
-
-            
+            step_started_at=step['started_at']            
                 
         child_1 = step_tracer.start_span(name=str(step['name']),start_time=do_time(step_started_at),context=p_sub_context,kind=trace.SpanKind.CONSUMER)
         child_1.set_attributes(create_resource_attributes(parse_attributes(step,""),GHA_SERVICE_NAME))
