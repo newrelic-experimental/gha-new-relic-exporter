@@ -125,7 +125,7 @@ for job in job_lst:
                 # Start time should be the previous step end time
                 step_started_at=job['steps'][index - 1]['completed_at']
             else:
-                step_completed_at=job['started_at']
+                step_started_at=job['started_at']
             
         child_1 = step_tracer.start_span(name=str(step['name']),start_time=do_time(step_started_at),context=p_sub_context,kind=trace.SpanKind.CONSUMER)
         child_1.set_attributes(create_resource_attributes(parse_attributes(step,""),GHA_SERVICE_NAME))
