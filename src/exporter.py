@@ -144,7 +144,10 @@ for job in job_lst:
                         except Exception as e:
                             print("Error exporting log line ERROR: ", e)
             except IOError as e:
-                print("Log file does not exist: "+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt")
+                if step['conclusion'] != 'skipped':
+                    print("ERROR: Log file does not exist: "+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt")
+                else:
+                    pass
 
         if step['conclusion'] == 'skipped':
             child_1.update_name(name=str(step['name']+"-SKIPPED"))
