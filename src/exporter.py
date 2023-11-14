@@ -109,7 +109,7 @@ for job in job_lst:
         resource_log = Resource(attributes=resource_attributes)
         job_logger = get_logger(endpoint,headers,resource_log, "job_logger")
 
-        if step['conclusion'] == 'skipped':
+        if step['conclusion'] == 'skipped' or step['conclusion'] == 'cancelled':
             if index >= 1:  
                 # Start time should be the previous step end time
                 step_started_at=job['steps'][index - 1]['completed_at']
@@ -144,12 +144,12 @@ for job in job_lst:
                         except Exception as e:
                             print("Error exporting log line ERROR: ", e)
             except IOError as e:
-                if step['conclusion'] != 'skipped':
+                if step['conclusion'] != 'skipped' or step['conclusion'] != 'cancelled':
                     print("ERROR: Log file does not exist: "+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt")
                 else:
-                    pass
+                    pass #We expect log file to not exist
 
-        if step['conclusion'] == 'skipped':
+        if step['conclusion'] == 'skipped' or step['conclusion'] == 'cancelled':
             child_1.update_name(name=str(step['name']+"-SKIPPED"))
             if index >= 1:      
                 #End time should be the previous step end time
