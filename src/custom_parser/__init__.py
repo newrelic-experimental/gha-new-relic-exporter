@@ -46,7 +46,7 @@ def parse_attributes(obj,att_to_drop):
     #     except:
     #         print("Unable to parse GHA_ATTRIBUTES_DROP, check your configuration")
 
-    for attribute in obj:
+    for attribute in list(obj):
         attribute_name = str(attribute).lower()
         if attribute_name.endswith("_at"):
             new_Att_name=attribute_name+"_ms"
