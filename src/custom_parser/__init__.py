@@ -12,6 +12,9 @@ def do_fastcore_decode(obj):
 def do_time(string):
     return (int(round(time.mktime(parse(string).timetuple())) * 1000000000))
 
+def do_time_ms(string):
+    return (int(round(time.mktime(parse(string).timetuple())) * 1000))
+
 def do_string(string):
     return str(string).lower().replace(" ", "")
 
@@ -51,7 +54,7 @@ def parse_attributes(obj,att_to_drop):
         if attribute_name.endswith("_at"):
             new_Att_name=attribute_name+"_ms"
             obj[new_Att_name]=do_time(obj[attribute])
-            print(attribute_name,do_time(obj[attribute])[:-6])
+            print(attribute_name,do_time_ms(obj[attribute]))
         
         if attribute_name not in attributes_to_drop:
             if do_parse(obj[attribute]):
