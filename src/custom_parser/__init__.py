@@ -49,6 +49,8 @@ def parse_attributes(obj,att_to_drop):
     for attribute in obj:
         attribute_name = str(attribute).lower()
         if attribute_name.endswith("_at"):
+            new_Att_name=attribute_name+"_ms"
+            obj[new_Att_name]=do_time(obj[attribute])
             print(attribute_name,do_time(obj[attribute]))
         
         if attribute_name not in attributes_to_drop:
