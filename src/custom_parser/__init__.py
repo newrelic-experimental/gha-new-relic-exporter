@@ -49,7 +49,7 @@ def parse_attributes(obj,att_to_drop):
     for attribute in obj:
         attribute_name = str(attribute).lower()
         if attribute_name.endswith("_at"):
-            print(attribute_name)
+            print(attribute_name,obj[attribute])
         
         if attribute_name not in attributes_to_drop:
             if do_parse(obj[attribute]):
