@@ -47,8 +47,10 @@ def parse_attributes(obj,att_to_drop):
     #         print("Unable to parse GHA_ATTRIBUTES_DROP, check your configuration")
 
     for attribute in obj:
-        print(attribute)
         attribute_name = str(attribute).lower()
+        if attribute_name.endswith("_at"):
+            print(attribute_name)
+        
         if attribute_name not in attributes_to_drop:
             if do_parse(obj[attribute]):
                 if type(obj[attribute]) is dict:
