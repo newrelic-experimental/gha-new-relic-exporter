@@ -53,7 +53,8 @@ def parse_attributes(obj,att_to_drop):
         attribute_name = str(attribute).lower()
         if attribute_name.endswith("_at"):
             new_Att_name=attribute_name+"_ms"
-            obj[new_Att_name]=do_time_ms(obj[attribute])
+            obj_atts[new_Att_name]=do_time_ms(obj[attribute])
+            print(new_Att_name,do_time_ms(obj[attribute]))
         
         if attribute_name not in attributes_to_drop:
             if do_parse(obj[attribute]):
@@ -68,7 +69,8 @@ def parse_attributes(obj,att_to_drop):
                                         obj_atts[attribute_name]=str(obj[attribute][sub_att][att])
                                         if attribute_name.endswith("_at"):
                                             new_Att_name=attribute_name+"_ms"
-                                            obj[new_Att_name]=do_time_ms(obj[attribute][sub_att][att])
+                                            obj_atts[new_Att_name]=do_time_ms(obj[attribute][sub_att][att])
+                                            print(new_Att_name,do_time_ms(obj[attribute][sub_att][att]))
                                 
                             elif type(obj[attribute][sub_att]) is list:
                                 for key in obj[attribute][sub_att]:
@@ -80,14 +82,16 @@ def parse_attributes(obj,att_to_drop):
                                                     obj_atts[attribute_name]=str(key[att])
                                                     if attribute_name.endswith("_at"):
                                                         new_Att_name=attribute_name+"_ms"
-                                                        obj[new_Att_name]=do_time_ms(key[att])
+                                                        obj_atts[new_Att_name]=do_time_ms(key[att])
+                                                        print(new_Att_name,do_time_ms(key[att]))
                                     else:
                                         attribute_name = do_string(attribute)+"."+do_string(sub_att)
                                         if attribute_name not in attributes_to_drop:
                                             obj_atts[attribute_name]=str(key)
                                             if attribute_name.endswith("_at"):
                                                 new_Att_name=attribute_name+"_ms"
-                                                obj[new_Att_name]=do_time_ms(key)
+                                                obj_atts[new_Att_name]=do_time_ms(key)
+                                                print(new_Att_name,do_time_ms(key))
 
                             else:
                                 attribute_name = do_string(attribute)+"."+do_string(sub_att)
@@ -95,7 +99,8 @@ def parse_attributes(obj,att_to_drop):
                                     obj_atts[attribute_name]=str(obj[attribute][sub_att])
                                     if attribute_name.endswith("_at"):
                                         new_Att_name=attribute_name+"_ms"
-                                        obj[new_Att_name]=do_time_ms(obj[attribute][sub_att])
+                                        obj_atts[new_Att_name]=do_time_ms(obj[attribute][sub_att])
+                                        print(new_Att_name,do_time_ms(obj[attribute][sub_att]))
 
                 elif type(obj[attribute]) is list:
                     for key in obj[attribute]:
@@ -107,7 +112,8 @@ def parse_attributes(obj,att_to_drop):
                                         obj_atts[attribute_name]=str(key[att])
                                         if attribute_name.endswith("_at"):
                                             new_Att_name=attribute_name+"_ms"
-                                            obj[new_Att_name]=do_time_ms(key[att])
+                                            obj_atts[new_Att_name]=do_time_ms(key[att])
+                                            print(new_Att_name,do_time_ms(key[att]))
                 else:
                     if do_parse(obj[attribute]):
                         attribute_name = do_string(attribute)
@@ -115,5 +121,6 @@ def parse_attributes(obj,att_to_drop):
                             obj_atts[attribute_name]=str(obj[attribute])
                             if attribute_name.endswith("_at"):
                                 new_Att_name=attribute_name+"_ms"
-                                obj[new_Att_name]=do_time_ms(obj[attribute])                         
+                                obj_atts[new_Att_name]=do_time_ms(obj[attribute])     
+                                print(new_Att_name,do_time_ms(obj[attribute]))          
     return obj_atts
