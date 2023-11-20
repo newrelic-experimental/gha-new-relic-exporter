@@ -69,8 +69,8 @@ Each workflow's run/execution steps can be viewed as spans, and logs are also ca
 
 ## Troubleshooting 
 
-Configure `GHA_DEBUG` as secret in your repository and set it to true
-Add GHA_DEBUG: ${{ secrets.GHA_DEBUG }} to your env configuration block.
+- Configure `GHA_DEBUG` as secret in your repository and set it to true
+- Add GHA_DEBUG: ${{ secrets.GHA_DEBUG }} to your env configuration block.
 
 ## Contributing
 
