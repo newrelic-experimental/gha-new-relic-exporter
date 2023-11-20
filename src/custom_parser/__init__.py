@@ -1,7 +1,6 @@
 import time
 from pyrfc3339 import parse
 import os
-import ast
 import json
 from fastcore.xtras import obj2dict
 
@@ -36,7 +35,7 @@ def check_env_vars():
             print(key + " not set")
         exit(1)
 
-def parse_attributes(obj,att_to_drop):
+def parse_attributes(obj,att_to_drop,otype):
     obj_atts = {}
     attributes_to_drop = []
     # todo
@@ -48,12 +47,14 @@ def parse_attributes(obj,att_to_drop):
     #                 attributes_to_drop.append(attribute)
     #     except:
     #         print("Unable to parse GHA_ATTRIBUTES_DROP, check your configuration")
-
     for attribute in list(obj):
         attribute_name = str(attribute).lower()
         if attribute_name.endswith("_at"):
-            new_Att_name=attribute_name+"_ms"
-            obj_atts[new_Att_name]=do_time_ms(obj[attribute])
+            if obj['conclusion'] == 'skipped' or obj['conclusion'] == 'cancelled':
+                pass
+            else:
+                new_Att_name=attribute_name+"_ms"
+                obj_atts[new_Att_name]=do_time_ms(obj[attribute])
         
         if attribute_name not in attributes_to_drop:
             if do_parse(obj[attribute]):
@@ -67,8 +68,11 @@ def parse_attributes(obj,att_to_drop):
                                     if attribute_name not in attributes_to_drop:
                                         obj_atts[attribute_name]=str(obj[attribute][sub_att][att])
                                         if attribute_name.endswith("_at"):
-                                            new_Att_name=attribute_name+"_ms"
-                                            obj_atts[new_Att_name]=do_time_ms(obj[attribute][sub_att][att])
+                                            if obj['conclusion'] == 'skipped' or obj['conclusion'] == 'cancelled':
+                                                    pass
+                                            else:
+                                                new_Att_name=attribute_name+"_ms"
+                                                obj_atts[new_Att_name]=do_time_ms(obj[attribute][sub_att][att])
 
                                 
                             elif type(obj[attribute][sub_att]) is list:
@@ -80,24 +84,33 @@ def parse_attributes(obj,att_to_drop):
                                                 if attribute_name not in attributes_to_drop:
                                                     obj_atts[attribute_name]=str(key[att])
                                                     if attribute_name.endswith("_at"):
-                                                        new_Att_name=attribute_name+"_ms"
-                                                        obj_atts[new_Att_name]=do_time_ms(key[att])
+                                                        if obj['conclusion'] == 'skipped' or obj['conclusion'] == 'cancelled':
+                                                            pass
+                                                        else:
+                                                            new_Att_name=attribute_name+"_ms"
+                                                            obj_atts[new_Att_name]=do_time_ms(key[att])
 
                                     else:
                                         attribute_name = do_string(attribute)+"."+do_string(sub_att)
                                         if attribute_name not in attributes_to_drop:
                                             obj_atts[attribute_name]=str(key)
                                             if attribute_name.endswith("_at"):
-                                                new_Att_name=attribute_name+"_ms"
-                                                obj_atts[new_Att_name]=do_time_ms(key)
+                                                if obj['conclusion'] == 'skipped' or obj['conclusion'] == 'cancelled':
+                                                    pass
+                                                else:
+                                                    new_Att_name=attribute_name+"_ms"
+                                                    obj_atts[new_Att_name]=do_time_ms(key)
 
                             else:
                                 attribute_name = do_string(attribute)+"."+do_string(sub_att)
                                 if attribute_name not in attributes_to_drop:
                                     obj_atts[attribute_name]=str(obj[attribute][sub_att])
                                     if attribute_name.endswith("_at"):
-                                        new_Att_name=attribute_name+"_ms"
-                                        obj_atts[new_Att_name]=do_time_ms(obj[attribute][sub_att])
+                                        if obj['conclusion'] == 'skipped' or obj['conclusion'] == 'cancelled':
+                                            pass
+                                        else:
+                                            new_Att_name=attribute_name+"_ms"
+                                            obj_atts[new_Att_name]=do_time_ms(obj[attribute][sub_att])
 
                 elif type(obj[attribute]) is list:
                     for key in obj[attribute]:
@@ -108,14 +121,20 @@ def parse_attributes(obj,att_to_drop):
                                     if attribute_name not in attributes_to_drop:
                                         obj_atts[attribute_name]=str(key[att])
                                         if attribute_name.endswith("_at"):
-                                            new_Att_name=attribute_name+"_ms"
-                                            obj_atts[new_Att_name]=do_time_ms(key[att])
+                                            if obj['conclusion'] == 'skipped' or obj['conclusion'] == 'cancelled':
+                                                pass
+                                            else:
+                                                new_Att_name=attribute_name+"_ms"
+                                                obj_atts[new_Att_name]=do_time_ms(key[att])
                 else:
                     if do_parse(obj[attribute]):
                         attribute_name = do_string(attribute)
                         if attribute_name not in attributes_to_drop:
                             obj_atts[attribute_name]=str(obj[attribute])
                             if attribute_name.endswith("_at"):
-                                new_Att_name=attribute_name+"_ms"
-                                obj_atts[new_Att_name]=do_time_ms(obj[attribute])           
+                                if obj['conclusion'] == 'skipped' or obj['conclusion'] == 'cancelled':
+                                    pass
+                                else:
+                                    new_Att_name=attribute_name+"_ms"
+                                    obj_atts[new_Att_name]=do_time_ms(obj[attribute])           
     return obj_atts
