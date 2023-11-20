@@ -23,13 +23,11 @@ Before setting up the integration, you will need a [New Relic license/ingest API
 1. Configure your New Relic license key as a secret in your repository, and call it `NEW_RELIC_LICENSE_KEY`
 2. The exporter uses automatic token authentication by default, for this you need to ensure that `GITHUB_TOKEN` has at least read access to the action scope. Alternatively, you can use a Personal Access Token, in this case, configure your PAT token as secret in your repository, called it `GHA_TOKEN`
 
-
 Create your workflow yaml with below configuration, under .github/workflows, called it `new-relic-exporter.yaml` for example.
 
 Amend env: section according to the token method in use.
 `GHA_TOKEN: ${{ secrets.GITHUB_TOKEN }}` for automatic token authentication
 `GHA_TOKEN: ${{ secrets.GHA_TOKEN }}` for PAT token authentication
-
 
 ```
 name: new-relic-exporter
@@ -44,6 +42,7 @@ env:
   NEW_RELIC_LICENSE_KEY: ${{ secrets.NEW_RELIC_LICENSE_KEY }}
   GHA_RUN_ID: ${{ github.event.workflow_run.id }}
   GHA_RUN_NAME: ${{ github.event.workflow_run.name }}
+
 
 jobs:
   new-relic-exporter:
@@ -68,8 +67,10 @@ Each workflow's run/execution steps can be viewed as spans, and logs are also ca
 ![SingleTrace](screenshots/single_trace.png)
 ![Logs](screenshots/logs.png)
 
+## Troubleshooting 
 
-
+Configure `GHA_DEBUG` as secret in your repository and set it to true
+Add GHA_DEBUG: ${{ secrets.GHA_DEBUG }} to your env configuration block.
 
 ## Contributing
 
