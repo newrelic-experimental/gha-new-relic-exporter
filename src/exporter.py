@@ -141,9 +141,6 @@ for job in job_lst:
                                     len_line_to_add = len(line_to_add)
                                     timestamp_to_add = line[0:23]
                                     if len_line_to_add > 0:
-                                        if line_to_add.lower().startswith("##[error]"):
-                                            child_1.set_status(Status(StatusCode.ERROR,line_to_add[9:]))
-                                            child_0.set_status(Status(StatusCode.ERROR,"STEP: "+str(step['name'])+" failed"))
                                         # Convert ISO 8601 to timestamp
                                         try:
                                             parsed_t = dp.isoparse(timestamp_to_add)
@@ -151,7 +148,21 @@ for job in job_lst:
                                             print("Line does not start with a date. Skip for now")
                                             continue
                                         unix_timestamp = parsed_t.timestamp()*1000
-                                        job_logger._log(level=logging.INFO,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
+                                        if line_to_add.lower().startswith("##[error]"):
+                                            child_1.set_status(Status(StatusCode.ERROR,line_to_add[9:]))
+                                            child_0.set_status(Status(StatusCode.ERROR,"STEP: "+str(step['name'])+" failed"))                                       
+                                            job_logger._log(level=logging.ERROR,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
+                                        elif line_to_add.lower().startswith("##[warning]"):
+                                            job_logger._log(level=logging.WARNING,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
+                                        elif line_to_add.lower().startswith("##[notice]"): 
+                                            #Notice (notice): applies to normal but significant conditions that may require monitoring.
+                                            # Applying INFO4 aka 12 -> https://opentelemetry.io/docs/specs/otel/logs/data-model/#displaying-severity
+                                            job_logger._log(level=12,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
+                                        elif line_to_add.lower().startswith("##[debug]"):
+                                            job_logger._log(level=logging.DEBUG,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
+                                        else:
+                                            job_logger._log(level=logging.INFO,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
+                                            
                                 except Exception as e:
                                     print("Error exporting log line ERROR: ", e)
                     except IOError as e:
