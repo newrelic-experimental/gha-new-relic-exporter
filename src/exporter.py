@@ -47,7 +47,24 @@ api = GhApi(owner=GITHUB_REPOSITORY_OWNER, repo=GHA_SERVICE_NAME.split('/')[1], 
 
 # Github API calls
 get_workflow_run_by_run_id = do_fastcore_decode(api.actions.get_workflow_run(GHA_RUN_ID))
-get_workflow_run_jobs_by_run_id = do_fastcore_decode(api.actions.list_jobs_for_workflow_run(GHA_RUN_ID))
+
+#  Get all the jobs for a workflow run, deals with the case where there are more jobs than the default page size of 30
+def get_workflow_run_jobs_by_run_id(page=1, jobs=None):
+    if jobs is None:
+        jobs = []
+
+    try:
+        response = do_fastcore_decode(api.actions.list_jobs_for_workflow_run(GHA_RUN_ID,page=page))
+        workflow_run = json.loads(response)
+        jobs.extend(workflow_run['jobs'])
+
+        if workflow_run['total_count'] > len(jobs):
+            return get_workflow_run_jobs_by_run_id(page+1, jobs)
+    except Exception as e:
+        print("Error getting workflow run jobs",e)
+
+    return jobs
+
 
 #Set OTEL resources
 global_attributes={
@@ -64,9 +81,9 @@ tracer = get_tracer(endpoint, headers, global_resource, "tracer")
 
 
 #Ensure we don't export data for new relic exporters
-workflow_run = json.loads(get_workflow_run_jobs_by_run_id)
+workflow_jobs = get_workflow_run_jobs_by_run_id()
 job_lst=[]
-for job in workflow_run['jobs']:
+for job in workflow_jobs:
     if str(job['name']).lower() not in ["new-relic-exporter"]:
         job_lst.append(job)
 
@@ -115,20 +132,20 @@ for job in job_lst:
                 resource_attributes ={SERVICE_NAME: GHA_SERVICE_NAME,"github.source": "github-exporter","github.resource.type": "span","workflow_run_id": GHA_RUN_ID}
                 resource_log = Resource(attributes=resource_attributes)
                 step_tracer = get_tracer(endpoint, headers, resource_log, "step_tracer")
-                
+
                 resource_attributes.update(create_resource_attributes(parse_attributes(step,"","step"),GHA_SERVICE_NAME))
                 resource_log = Resource(attributes=resource_attributes)
                 job_logger = get_logger(endpoint,headers,resource_log, "job_logger")
 
                 if step['conclusion'] == 'skipped' or step['conclusion'] == 'cancelled':
-                    if index >= 1:  
+                    if index >= 1:
                         # Start time should be the previous step end time
                         step_started_at=job['steps'][index - 1]['completed_at']
                     else:
                         step_started_at=job['started_at']
                 else:
-                    step_started_at=step['started_at']            
-                        
+                    step_started_at=step['started_at']
+
                 child_1 = step_tracer.start_span(name=str(step['name']),start_time=do_time(step_started_at),context=p_sub_context,kind=trace.SpanKind.CONSUMER)
                 child_1.set_attributes(create_resource_attributes(parse_attributes(step,"","job"),GHA_SERVICE_NAME))
                 with trace.use_span(child_1, end_on_exit=False):
@@ -150,11 +167,11 @@ for job in job_lst:
                                         unix_timestamp = parsed_t.timestamp()*1000
                                         if line_to_add.lower().startswith("##[error]"):
                                             child_1.set_status(Status(StatusCode.ERROR,line_to_add[9:]))
-                                            child_0.set_status(Status(StatusCode.ERROR,"STEP: "+str(step['name'])+" failed"))                                       
+                                            child_0.set_status(Status(StatusCode.ERROR,"STEP: "+str(step['name'])+" failed"))
                                             job_logger._log(level=logging.ERROR,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
                                         elif line_to_add.lower().startswith("##[warning]"):
                                             job_logger._log(level=logging.WARNING,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
-                                        elif line_to_add.lower().startswith("##[notice]"): 
+                                        elif line_to_add.lower().startswith("##[notice]"):
                                             #Notice (notice): applies to normal but significant conditions that may require monitoring.
                                             # Applying INFO4 aka 12 -> https://opentelemetry.io/docs/specs/otel/logs/data-model/#displaying-severity
                                             job_logger._log(level=12,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
@@ -162,7 +179,7 @@ for job in job_lst:
                                             job_logger._log(level=logging.DEBUG,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
                                         else:
                                             job_logger._log(level=logging.INFO,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
-                                            
+
                                 except Exception as e:
                                     print("Error exporting log line ERROR: ", e)
                     except IOError as e:
@@ -171,29 +188,29 @@ for job in job_lst:
                             pass #We don't expect log file to exist
                         else:
                             print("ERROR: Log file does not exist: "+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt")
-                            
+
 
                 if step['conclusion'] == 'skipped' or step['conclusion'] == 'cancelled':
                     child_1.update_name(name=str(step['name']+"-SKIPPED"))
-                    if index >= 1:      
+                    if index >= 1:
                         #End time should be the previous step end time
                         step_completed_at=job['steps'][index - 1]['completed_at']
                     else:
                         step_completed_at=job['started_at']
                 else:
                     step_completed_at=step['completed_at']
-                                    
+
                 child_1.end(end_time=do_time(step_completed_at))
                 print("Finished processing step ->",step['name'],"from job",job['name'])
             except Exception as e:
                 print("Unable to process step ->",step['name'],"<- due to error",e)
-                
+
         child_0.end(end_time=do_time(job['completed_at']))
         workflow_run_finish_time=do_time(job['completed_at'])
         print("Finished processing job ->",job['name'])
     except Exception as e:
         print("Unable to process job ->",job['name'],"<- due to error",e)
-                    
+
 p_parent.end(end_time=workflow_run_finish_time)
 print("Finished processing Workflow ->",GHA_RUN_NAME,"run id ->",GHA_RUN_ID)
 print("All data exported to New Relic")
