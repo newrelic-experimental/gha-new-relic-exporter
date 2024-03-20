@@ -18,6 +18,7 @@ check_env_vars()
 # Configure env variables
 GHA_TOKEN = os.getenv('GHA_TOKEN')
 NEW_RELIC_LICENSE_KEY = os.getenv('NEW_RELIC_LICENSE_KEY')
+OTEL_EXPORTER_OTEL_ENDPOINT = os.getenv('OTEL_EXPORTER_OTEL_ENDPOINT')
 GHA_RUN_ID = os.getenv('GHA_RUN_ID')
 GHA_SERVICE_NAME=os.getenv('GITHUB_REPOSITORY')
 GITHUB_REPOSITORY_OWNER=os.getenv('GITHUB_REPOSITORY_OWNER')
@@ -34,10 +35,11 @@ if "GHA_DEBUG" in os.environ and os.getenv('GHA_DEBUG').lower() == "true":
 else:
     pass
 
-if NEW_RELIC_LICENSE_KEY.startswith("eu"):
-    OTEL_EXPORTER_OTEL_ENDPOINT = "https://otlp.eu01.nr-data.net:4318"
-else:
-    OTEL_EXPORTER_OTEL_ENDPOINT = "https://otlp.nr-data.net:4318"
+if OTEL_EXPORTER_OTEL_ENDPOINT in (None, ''):
+    if NEW_RELIC_LICENSE_KEY.startswith("eu"):
+        OTEL_EXPORTER_OTEL_ENDPOINT = "https://otlp.eu01.nr-data.net:4318"
+    else:
+        OTEL_EXPORTER_OTEL_ENDPOINT = "https://otlp.nr-data.net:4318"
 
 endpoint="{}".format(OTEL_EXPORTER_OTEL_ENDPOINT)
 headers="api-key={}".format(NEW_RELIC_LICENSE_KEY)
