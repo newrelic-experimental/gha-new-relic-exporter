@@ -80,7 +80,7 @@ if len(job_lst) == 0:
 workflow_run_atts = json.loads(get_workflow_run_by_run_id)
 atts=parse_attributes(workflow_run_atts,"","workflow")
 print("Processing Workflow ->",GHA_RUN_NAME,"run id ->",GHA_RUN_ID)
-p_parent = tracer.start_span(name=str(GHA_RUN_NAME) + " - run: "+str(GHA_RUN_ID),attributes=atts,start_time=do_time(workflow_run_atts['run_started_at']),kind=trace.SpanKind.SERVER)
+p_parent = tracer.start_span(name=str(GHA_RUN_NAME),attributes=atts,start_time=do_time(workflow_run_atts['run_started_at']),kind=trace.SpanKind.SERVER)
 
 # Download logs
 # Have to use python requests due to known issue with ghapi -> https://github.com/fastai/ghapi/issues/119
