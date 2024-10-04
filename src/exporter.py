@@ -144,7 +144,7 @@ for job in job_lst:
                 with trace.use_span(child_1, end_on_exit=False):
                     # Parse logs
                     try:
-                        with open ("./logs/"+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt") as f:
+                        with open ("./logs/"+str(job["name"]).replace("/", "")+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt") as f:
                             for line in f.readlines():
                                 try:
                                     line_to_add = line[29:-1].strip()
@@ -180,7 +180,7 @@ for job in job_lst:
                             print("Log file not expected for this step ->",step['name'],"<- because its status is ->",step['conclusion'])
                             pass #We don't expect log file to exist
                         else:
-                            print("ERROR: Log file does not exist: "+str(job["name"])+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt")
+                            print("ERROR: Log file does not exist: "+str(job["name"]).replace("/", "")+"/"+str(step['number'])+"_"+str(step['name'].replace("/",""))+".txt")
                             
 
                 if step['conclusion'] == 'skipped' or step['conclusion'] == 'cancelled':
