@@ -67,7 +67,7 @@ global_attributes={
     "github.resource.type": "span"
 }
 
-# Example: GHA_CUSTOM_ATTS ='{ "name":"John", "age":30, "city":"New York"}'
+# Example: GHA_CUSTOM_ATTS: '{"mycustomattributea":"test", "mycustomattributeb":10, "mycustomattributec":"My custom attribute"}'
 # Check for custom attributes
 if "GHA_CUSTOM_ATTS" in os.environ:
     GHA_CUSTOM_ATTS = os.environ["GHA_CUSTOM_ATTS"]
