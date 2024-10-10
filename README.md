@@ -42,6 +42,7 @@ env:
   NEW_RELIC_LICENSE_KEY: ${{ secrets.NEW_RELIC_LICENSE_KEY }}
   GHA_RUN_ID: ${{ github.event.workflow_run.id }}
   GHA_RUN_NAME: ${{ github.event.workflow_run.name }}
+  #GHA_CUSTOM_ATTS ='{ "name":"John", "age":30, "city":"New York"}'
 
 
 jobs:

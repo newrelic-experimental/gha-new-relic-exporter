@@ -67,7 +67,21 @@ global_attributes={
     "github.resource.type": "span"
 }
 
+# Example: GHA_CUSTOM_ATTS ='{ "name":"John", "age":30, "city":"New York"}'
+# Check for custom attributes
+if "GHA_CUSTOM_ATTS" in os.environ:
+    GHA_CUSTOM_ATTS = os.environ["GHA_CUSTOM_ATTS"]
+else:
+    GHA_CUSTOM_ATTS = ""
 
+
+if GHA_CUSTOM_ATTS != "":
+    try:
+        global_attributes.update(json.loads(GHA_CUSTOM_ATTS))
+    except:
+        print("Error parsing GHA_CUSTOM_ATTS check your configuration, continuing without custom attributes")
+        pass
+    
 #Set workflow level tracer and logger
 global_resource = Resource(attributes=global_attributes)
 tracer = get_tracer(endpoint, headers, global_resource, "tracer")
@@ -123,7 +137,15 @@ for job in job_lst:
                 print("Processing step ->",step['name'],"from job",job['name'])
                 # Set steps tracer and logger
                 resource_attributes ={SERVICE_NAME: GHA_SERVICE_NAME,"github.source": "github-exporter","github.resource.type": "span","workflow_run_id": GHA_RUN_ID}
+                # Add custom attributes if they exist
+                if GHA_CUSTOM_ATTS != "":
+                    try:
+                        resource_attributes.update(json.loads(GHA_CUSTOM_ATTS))
+                    except:
+                        print("Error parsing GHA_CUSTOM_ATTS check your configuration, continuing without custom attributes")
+                        pass
                 resource_log = Resource(attributes=resource_attributes)
+                
                 step_tracer = get_tracer(endpoint, headers, resource_log, "step_tracer")
                 
                 resource_attributes.update(create_resource_attributes(parse_attributes(step,"","step"),GHA_SERVICE_NAME))
