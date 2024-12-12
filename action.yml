@@ -5,4 +5,4 @@ author: dpacheconr
 
 runs:
   using: 'docker'
-  image: 'Dockerfile'
+  image: 'ghcr.io/newrelic-experimental/gha-new-relic-exporter:latest'
