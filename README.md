@@ -43,7 +43,7 @@ env:
   GHA_RUN_ID: ${{ github.event.workflow_run.id }}
   GHA_RUN_NAME: ${{ github.event.workflow_run.name }}
   #GHA_CUSTOM_ATTS: '{"mycustomattributea":"test", "mycustomattributeb":10, "mycustomattributec":"My custom attribute"}'
-
+  #GHA_EXPORT_LOGS: 'false' # <---true by default
 
 jobs:
   new-relic-exporter:

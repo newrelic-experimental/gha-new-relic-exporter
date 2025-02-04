@@ -23,6 +23,13 @@ GHA_RUN_ID = os.getenv('GHA_RUN_ID')
 GHA_RUN_NAME=os.getenv('GHA_RUN_NAME')
 GITHUB_API_URL=os.getenv('GITHUB_API_URL')
 
+if "GHA_EXPORT_LOGS" in os.environ and os.getenv('GHA_EXPORT_LOGS').lower() == "false":
+    GHA_EXPORT_LOGS=False
+    print("INFO: Not configured to send logs to backend")
+else:
+    print("INFO: Configured to send logs to backend")
+    GHA_EXPORT_LOGS=True
+
 if 'GHA_REPOSITORY' in os.environ:
     GHA_SERVICE_NAME=os.getenv('GHA_REPOSITORY')
 else:
@@ -182,18 +189,34 @@ for job in job_lst:
                                         unix_timestamp = parsed_t.timestamp()*1000
                                         if line_to_add.lower().startswith("##[error]"):
                                             child_1.set_status(Status(StatusCode.ERROR,line_to_add[9:]))
-                                            child_0.set_status(Status(StatusCode.ERROR,"STEP: "+str(step['name'])+" failed"))                                       
-                                            job_logger._log(level=logging.ERROR,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
+                                            child_0.set_status(Status(StatusCode.ERROR,"STEP: "+str(step['name'])+" failed"))     
+                                            if GHA_EXPORT_LOGS:
+                                                job_logger._log(level=logging.ERROR,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
+                                            else:
+                                                pass
                                         elif line_to_add.lower().startswith("##[warning]"):
-                                            job_logger._log(level=logging.WARNING,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
+                                            if GHA_EXPORT_LOGS:
+                                                job_logger._log(level=logging.WARNING,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
+                                            else:
+                                                pass
                                         elif line_to_add.lower().startswith("##[notice]"): 
                                             #Notice (notice): applies to normal but significant conditions that may require monitoring.
                                             # Applying INFO4 aka 12 -> https://opentelemetry.io/docs/specs/otel/logs/data-model/#displaying-severity
-                                            job_logger._log(level=12,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
+                                            if GHA_EXPORT_LOGS:
+                                                job_logger._log(level=12,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
+                                            else:
+                                                print("Logs not exported")
+                                                pass
                                         elif line_to_add.lower().startswith("##[debug]"):
-                                            job_logger._log(level=logging.DEBUG,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
+                                            if GHA_EXPORT_LOGS:
+                                                job_logger._log(level=logging.DEBUG,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
+                                            else:
+                                                pass
                                         else:
-                                            job_logger._log(level=logging.INFO,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
+                                            if GHA_EXPORT_LOGS:
+                                                job_logger._log(level=logging.INFO,msg=line_to_add,extra={"log.timestamp":unix_timestamp,"log.time":timestamp_to_add},args="")
+                                            else:
+                                                pass
                                             
                                 except Exception as e:
                                     print("Error exporting log line ERROR: ", e)
