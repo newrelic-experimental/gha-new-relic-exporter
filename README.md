@@ -54,7 +54,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: new-relic-exporter
-        uses: newrelic-experimental/gha-new-relic-exporter@latest
+        uses: newrelic-experimental/gha-new-relic-exporter@1.0.0
 ```
 
 ## Example
