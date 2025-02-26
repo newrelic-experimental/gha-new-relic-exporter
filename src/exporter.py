@@ -64,7 +64,7 @@ api = GhApi(owner=GITHUB_REPOSITORY_OWNER, repo=GHA_SERVICE_NAME.split('/')[1], 
 
 # Github API calls
 get_workflow_run_by_run_id = do_fastcore_decode(api.actions.get_workflow_run(GHA_RUN_ID))
-get_workflow_run_jobs_by_run_id = do_fastcore_decode(api.actions.list_jobs_for_workflow_run(GHA_RUN_ID))
+get_workflow_run_jobs_by_run_id = do_fastcore_decode(api.actions.list_jobs_for_workflow_run(page=1, per_page=100, GHA_RUN_ID))
 
 #Set OTEL resources
 global_attributes={
