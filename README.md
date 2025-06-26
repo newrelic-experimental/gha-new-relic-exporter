@@ -15,7 +15,7 @@ You will be able to:
 
 ## How to
 
-Configuring the exporter
+Configuring the exporter.
 
 Before setting up the integration, you will need a [New Relic license/ingest API key](https://docs.newrelic.com/docs/apis/intro-apis/new-relic-api-keys/#license-key).
 
