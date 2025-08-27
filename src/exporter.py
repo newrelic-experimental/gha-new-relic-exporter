@@ -53,7 +53,7 @@ else:
     pass
 
 if OTEL_EXPORTER_OTEL_ENDPOINT in (None, ""):
-    if NEW_RELIC_LICENSE_KEY.startswith("eu"):
+    if NEW_RELIC_LICENSE_KEY and NEW_RELIC_LICENSE_KEY.startswith("eu"):
         OTEL_EXPORTER_OTEL_ENDPOINT = "https://otlp.eu01.nr-data.net:4318"
     else:
         OTEL_EXPORTER_OTEL_ENDPOINT = "https://otlp.nr-data.net:4318"

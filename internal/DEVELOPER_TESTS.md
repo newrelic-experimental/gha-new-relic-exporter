@@ -18,7 +18,6 @@ Run individual unit and integration tests:
 python -m unittest tests/test_attributes_unit.py
 python -m unittest tests/test_attributes_integration.py
 python -m unittest tests/test_sanitize_filename.py
-python -m unittest tests/test_exporter_integration.py
 ```
 
 Run all tests at once (recommended):
