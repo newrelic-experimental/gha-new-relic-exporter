@@ -56,15 +56,56 @@ def parse_attributes(obj, att_to_drop, otype):
     #                 attributes_to_drop.append(attribute)
     #     except:
     #         print("Unable to parse GHA_ATTRIBUTES_DROP, check your configuration")
+    # Calculate ms values for created_at, started_at, completed_at early
+    created_at_ms = do_time_ms(obj.get("created_at"))
+    started_at_val = obj.get("started_at")
+    started_at_ms = do_time_ms(started_at_val) if started_at_val else None
+    completed_at_ms = do_time_ms(obj.get("completed_at"))
+
+    # Fallback for started_at if None
+    if started_at_val is None or started_at_val == "":
+        started_at_val = obj.get("created_at")
+        started_at_ms = created_at_ms
+
+    # Detect job reuse
+    job_reused = False
+    if (
+        started_at_ms is not None
+        and created_at_ms is not None
+        and started_at_ms < created_at_ms
+    ):
+        job_reused = True
+        started_at_val = obj.get("created_at")
+        started_at_ms = created_at_ms
+    # Add ms fields and job_reused flag
+    if obj.get("created_at") is not None:
+        obj_atts["created_at"] = obj.get("created_at")
+        obj_atts["created_at_ms"] = created_at_ms
+    if started_at_val is not None:
+        obj_atts["started_at"] = started_at_val
+        obj_atts["started_at_ms"] = started_at_ms
+    if obj.get("completed_at") is not None:
+        obj_atts["completed_at"] = obj.get("completed_at")
+        obj_atts["completed_at_ms"] = completed_at_ms
+    obj_atts["job_reused"] = job_reused
+
+    # Calculate queue_time and duration
+    if job_reused:
+        obj_atts["queue_time_ms"] = 0
+        obj_atts["duration_ms"] = 0
+    else:
+        if started_at_ms is not None and created_at_ms is not None:
+            obj_atts["queue_time_ms"] = max(0, started_at_ms - created_at_ms)
+        if started_at_ms is not None and completed_at_ms is not None:
+            obj_atts["duration_ms"] = max(0, completed_at_ms - started_at_ms)
+
+    # Continue with normal attribute parsing
     for attribute in list(obj):
         attribute_name = str(attribute).lower()
-        # Special handling for started_at: use created_at as fallback if None
-        if attribute_name == "started_at" and (
-            obj[attribute] is None or obj[attribute] == ""
-        ):
-            obj_atts["started_at"] = obj.get("created_at")
-            obj_atts["started_at_ms"] = do_time_ms(obj.get("created_at"))
-        elif attribute_name.endswith("_at"):
+        # Skip already handled fields
+        if attribute_name in ["created_at", "started_at", "completed_at"]:
+            continue
+        if attribute_name.endswith("_at"):
             new_Att_name = attribute_name + "_ms"
             obj_atts[new_Att_name] = do_time_ms(obj[attribute])
 
