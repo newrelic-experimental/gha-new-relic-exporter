@@ -1,7 +1,3 @@
-
-[![New Relic Experimental header](https://github.com/newrelic/opensource-website/raw/master/src/images/categories/Experimental.png)](https://opensource.newrelic.com/oss-category/#new-relic-experimental)
-
-
 ## How to monitor Github Actions with New Relic
 Now, you can monitor your Github Actions with New Relic using Github Actions New Relic Exporter, making it easier to get observability into your CI/CD workflows health and performance.
 
@@ -67,6 +63,9 @@ Traces/Logs are viewable under an OTEL service entity in New Relic, named as you
 Each workflow's run/execution steps can be viewed as spans, and logs are also captured, in context:
 ![SingleTrace](screenshots/single_trace.png)
 ![Logs](screenshots/logs.png)
+
+# Note on started_at fallback
+If a job's `started_at` value is missing or null (e.g., for cancelled jobs), the exporter will use the `created_at` value as a fallback for both `started_at` and `started_at_ms`. This ensures queue/run time metrics are always available for all jobs.
 
 ## Troubleshooting 
 
