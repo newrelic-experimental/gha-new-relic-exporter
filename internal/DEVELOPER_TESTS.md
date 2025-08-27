@@ -1,19 +1,34 @@
 # Developer Note: Running Tests
 
+## Environment Setup
+1. Always activate your Python virtual environment before running any tests:
+	```
+	source venv/bin/activate
+	```
+2. Upgrade pip and install all dependencies:
+	```
+	python -m pip install --upgrade pip
+	pip install -r requirements.txt
+	```
 
-To run unit tests for the exporter, make sure you have your Python virtual environment activated and all dependencies installed:
 
+## Running Tests
+Run individual unit and integration tests:
 ```
-python -m unittest src/custom_parser/test_attributes_unit.py
-python -m unittest src/custom_parser/test_attributes_integration.py
-```
-
-You can run all tests at once with:
-```
-python -m unittest discover src/custom_parser
+python -m unittest tests/test_attributes_unit.py
+python -m unittest tests/test_attributes_integration.py
+python -m unittest tests/test_sanitize_filename.py
+python -m unittest tests/test_exporter_integration.py
 ```
 
-Ensure you have installed all required packages from `requirements.txt` before running tests:
+Run all tests at once (recommended):
 ```
-pip install -r requirements.txt
+python -m unittest discover tests
 ```
+
+## Test Organization
+- All tests should be placed in the `tests/` folder.
+
+## Notes
+- Ensure all required environment variables are set or mocked for integration tests.
+- All commands above assume you are inside your venv and using the correct Python interpreter.
