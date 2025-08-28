@@ -40,3 +40,8 @@ node_modules/
 
 # Exclude screenshots (if not sensitive, remove this line)
 screenshots/
+
+logs/
+logs.zip
+
+.DS_Store
