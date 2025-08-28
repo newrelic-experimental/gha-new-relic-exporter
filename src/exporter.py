@@ -375,6 +375,37 @@ for job in job_lst:
                 print("Unable to process step ->", step["name"], "<- due to error", e)
 
         child_0.end(end_time=do_time(job["completed_at"]))
+        # Process system.txt for the job if it exists
+        system_log_path = "./logs/" + sanitize_filename(job["name"]) + "/system.txt"
+        if os.path.exists(system_log_path):
+            try:
+                with open(system_log_path) as syslog:
+                    for line in syslog.readlines():
+                        # Try to parse timestamp and message
+                        try:
+                            timestamp_to_add = line[0:23]
+                            line_to_add = line[29:-1].strip()
+                            parsed_t = dp.isoparse(timestamp_to_add)
+                            unix_timestamp = parsed_t.timestamp() * 1000
+                            if GHA_EXPORT_LOGS:
+                                job_logger._log(
+                                    level=logging.INFO,
+                                    msg=line_to_add,
+                                    extra={
+                                        "log.timestamp": unix_timestamp,
+                                        "log.time": timestamp_to_add,
+                                    },
+                                    args="",
+                                )
+                        except Exception as e:
+                            print("Error exporting system.txt log line ERROR: ", e)
+            except Exception as e:
+                print(
+                    "Unable to process system.txt for job ->",
+                    job["name"],
+                    "<- due to error",
+                    e,
+                )
         workflow_run_finish_time = do_time(job["completed_at"])
         print("Finished processing job ->", job["name"])
     except Exception as e:
