@@ -8,7 +8,8 @@ import re
 
 def sanitize_filename(name: str) -> str:
     name = str(name)
-    # Replace only forbidden/special characters, preserve spaces
+    # Normalize spaces around slashes, then replace '/' with ' _ '
+    name = re.sub(r"\s*/\s*", "/", name)
     name = name.replace("/", " _ ")
     name = re.sub(r'[\\:*?"<>|]', "_", name)
     name = name.strip()
