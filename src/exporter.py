@@ -270,7 +270,7 @@ for job in job_lst:
                                             parsed_t = dp.isoparse(timestamp_to_add)
                                         except ValueError as e:
                                             print(
-                                                "Line does not start with a date. Skip for now"
+                                                f"Line does not start with a date. Skip for now: {line.strip()}"
                                             )
                                             continue
                                         unix_timestamp = parsed_t.timestamp() * 1000
