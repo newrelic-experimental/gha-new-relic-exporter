@@ -262,9 +262,11 @@ for job in job_lst:
                         with open(log_path) as f:
                             for line in f.readlines():
                                 try:
-                                    line_to_add = line[29:-1].strip()
+                                    # Remove BOM and leading whitespace
+                                    clean_line = line.lstrip("\ufeff").lstrip()
+                                    line_to_add = clean_line[29:-1].strip()
                                     len_line_to_add = len(line_to_add)
-                                    timestamp_to_add = line[0:23]
+                                    timestamp_to_add = clean_line[0:23]
                                     if len_line_to_add > 0:
                                         try:
                                             parsed_t = dp.isoparse(timestamp_to_add)
