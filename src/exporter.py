@@ -46,6 +46,7 @@ if "GHA_REPOSITORY_OWNER" in os.environ:
 else:
     GITHUB_REPOSITORY_OWNER = os.getenv("GITHUB_REPOSITORY_OWNER")
 
+
 # Check if debug is set
 if "GHA_DEBUG" in os.environ and os.getenv("GHA_DEBUG").lower() == "true":
     print("Running on DEBUG mode")
@@ -54,8 +55,7 @@ if "GHA_DEBUG" in os.environ and os.getenv("GHA_DEBUG").lower() == "true":
     http_client.HTTPConnection.debuglevel = 1
     LoggingInstrumentor().instrument(set_logging_format=True, log_level=logging.DEBUG)
     logging.getLogger().setLevel(logging.DEBUG)
-else:
-    pass
+
 
 if OTEL_EXPORTER_OTEL_ENDPOINT in (None, ""):
     if NEW_RELIC_LICENSE_KEY and NEW_RELIC_LICENSE_KEY.startswith("eu"):
@@ -168,16 +168,18 @@ import os
 
 
 def print_log_folder_structure():
-    print("DEBUG: Folder structure under ./logs:")
-    for root, dirs, files in os.walk("./logs"):
-        level = root.replace("./logs", "").count(os.sep)
-        indent = " " * 2 * level
-        print(f"{indent}{os.path.basename(root)}/")
-        subindent = " " * 2 * (level + 1)
-        for f in files:
-            print(f"{subindent}{f}")
+    if GHA_DEBUG:
+        print("DEBUG: Folder structure under ./logs:")
+        for root, dirs, files in os.walk("./logs"):
+            level = root.replace("./logs", "").count(os.sep)
+            indent = " " * 2 * level
+            print(f"{indent}{os.path.basename(root)}/")
+            subindent = " " * 2 * (level + 1)
+            for f in files:
+                print(f"{subindent}{f}")
 
 
+GHA_DEBUG = "GHA_DEBUG" in os.environ and os.getenv("GHA_DEBUG").lower() == "true"
 print_log_folder_structure()
 for job in job_lst:
     try:
@@ -364,10 +366,11 @@ for job in job_lst:
                                 step["conclusion"],
                             )
                         else:
-                            print(
-                                f"ERROR: Log file does not exist: {sanitize_filename(job['name'])}/{str(step['number'])}_{sanitize_filename(step['name'])}.txt"
-                            )
-                            print(f"DEBUG: Full path searched: {log_path}")
+                            if GHA_DEBUG:
+                                print(
+                                    f"ERROR: Log file does not exist: {sanitize_filename(job['name'])}/{str(step['number'])}_{sanitize_filename(step['name'])}.txt"
+                                )
+                                print(f"DEBUG: Full path searched: {log_path}")
 
                 if step["conclusion"] == "skipped" or step["conclusion"] == "cancelled":
                     child_1.update_name(name=str(step["name"] + "-SKIPPED"))
@@ -380,9 +383,13 @@ for job in job_lst:
                     step_completed_at = step["completed_at"]
 
                 child_1.end(end_time=do_time(step_completed_at))
-                print(
-                    "Finished processing step ->", step["name"], "from job", job["name"]
-                )
+                if GHA_DEBUG:
+                    print(
+                        "Finished processing step ->",
+                        step["name"],
+                        "from job",
+                        job["name"],
+                    )
             except Exception as e:
                 print("Unable to process step ->", step["name"], "<- due to error", e)
 
@@ -419,10 +426,12 @@ for job in job_lst:
                     e,
                 )
         workflow_run_finish_time = do_time(job["completed_at"])
-        print("Finished processing job ->", job["name"])
+        if GHA_DEBUG:
+            print("Finished processing job ->", job["name"])
     except Exception as e:
         print("Unable to process job ->", job["name"], "<- due to error", e)
 
 p_parent.end(end_time=workflow_run_finish_time)
-print("Finished processing Workflow ->", GHA_RUN_NAME, "run id ->", GHA_RUN_ID)
-print("All data exported to New Relic")
+if GHA_DEBUG:
+    print("Finished processing Workflow ->", GHA_RUN_NAME, "run id ->", GHA_RUN_ID)
+    print("All data exported to New Relic")
