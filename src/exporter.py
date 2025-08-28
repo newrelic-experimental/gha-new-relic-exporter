@@ -164,6 +164,21 @@ with zipfile.ZipFile("log.zip", "r") as zip_ref:
 # Jobs trace span
 # Set Jobs tracer and logger
 pcontext = trace.set_span_in_context(p_parent)
+import os
+
+
+def print_log_folder_structure():
+    print("DEBUG: Folder structure under ./logs:")
+    for root, dirs, files in os.walk("./logs"):
+        level = root.replace("./logs", "").count(os.sep)
+        indent = " " * 2 * level
+        print(f"{indent}{os.path.basename(root)}/")
+        subindent = " " * 2 * (level + 1)
+        for f in files:
+            print(f"{subindent}{f}")
+
+
+print_log_folder_structure()
 for job in job_lst:
     try:
         print("Processing job ->", job["name"])
@@ -348,14 +363,9 @@ for job in job_lst:
                             )
                         else:
                             print(
-                                "ERROR: Log file does not exist: "
-                                + sanitize_filename(job["name"])
-                                + "/"
-                                + str(step["number"])
-                                + "_"
-                                + sanitize_filename(step["name"])
-                                + ".txt"
+                                f"ERROR: Log file does not exist: {sanitize_filename(job['name'])}/{str(step['number'])}_{sanitize_filename(step['name'])}.txt"
                             )
+                            print(f"DEBUG: Full path searched: {log_path}")
 
                 if step["conclusion"] == "skipped" or step["conclusion"] == "cancelled":
                     child_1.update_name(name=str(step["name"] + "-SKIPPED"))
