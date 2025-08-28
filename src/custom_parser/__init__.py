@@ -8,12 +8,10 @@ import re
 
 def sanitize_filename(name: str) -> str:
     name = str(name)
-    name = name.replace("/", "_")
-    name = re.sub(
-        r'[\\:*?"<>| ]+', "_", name
-    )  # Replace special chars and spaces with _
-    name = re.sub(r"_+", "_", name)  # Collapse multiple underscores
-    name = name.strip("_")
+    # Replace only forbidden/special characters, preserve spaces
+    name = name.replace("/", " _ ")
+    name = re.sub(r'[\\:*?"<>|]', "_", name)
+    name = name.strip()
     return name
 
 
