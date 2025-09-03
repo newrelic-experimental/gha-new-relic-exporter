@@ -1,0 +1,47 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# Sensitive files
+*.pem
+*.key
+*.crt
+*.db
+
+# Docker
+*.pid
+
+# Test output
+htmlcov/
+.coverage
+
+# Misc
+*.swp
+*.swo
+
+# Node
+node_modules/
+
+# Exclude screenshots (if not sensitive, remove this line)
+screenshots/
+
+logs/
+logs.zip
+
+.DS_Store
