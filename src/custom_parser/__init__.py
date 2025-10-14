@@ -11,7 +11,8 @@ def sanitize_filename(name: str) -> str:
     # Normalize spaces around slashes, then replace '/' with ' _ '
     name = re.sub(r"\s*/\s*", "/", name)
     name = name.replace("/", " _ ")
-    name = re.sub(r'[\\:*?"<>|]', "_", name)
+    # Replace problematic characters but NOT < and > since GitHub Actions preserves them
+    name = re.sub(r'[\\:*?"|]', "_", name)
     name = name.strip()
     return name
 
