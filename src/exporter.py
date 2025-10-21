@@ -5,6 +5,8 @@ from custom_parser import (
     parse_attributes,
     check_env_vars,
     sanitize_filename,
+    find_log_file,
+    find_system_log_file,
 )
 import json
 import logging
@@ -251,15 +253,7 @@ for job in job_lst:
                 )
                 with trace.use_span(child_1, end_on_exit=False):
                     # Parse logs
-                    log_path = (
-                        "./logs/"
-                        + sanitize_filename(job["name"])
-                        + "/"
-                        + str(step["number"])
-                        + "_"
-                        + sanitize_filename(step["name"])
-                        + ".txt"
-                    )
+                    log_path = find_log_file("./logs", job["name"], step["number"], step["name"])
                     try:
                         with open(log_path) as f:
                             for line in f.readlines():
@@ -395,8 +389,8 @@ for job in job_lst:
 
         child_0.end(end_time=do_time(job["completed_at"]))
         # Process system.txt for the job if it exists
-        system_log_path = "./logs/" + sanitize_filename(job["name"]) + "/system.txt"
-        if os.path.exists(system_log_path):
+        system_log_path = find_system_log_file("./logs", job["name"])
+        if system_log_path and os.path.exists(system_log_path):
             try:
                 with open(system_log_path) as syslog:
                     for line in syslog.readlines():
