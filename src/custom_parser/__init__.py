@@ -4,6 +4,7 @@ import os
 import json
 from fastcore.xtras import obj2dict
 import re
+from pathlib import Path
 
 
 def sanitize_filename(name: str) -> str:
@@ -15,6 +16,89 @@ def sanitize_filename(name: str) -> str:
     name = re.sub(r'[\\:*?"|]', "_", name)
     name = name.strip()
     return name
+
+
+def find_log_file(logs_base_dir: str, job_name: str, step_number: int, step_name: str) -> str:
+    """
+    Find a log file in the extracted logs directory.
+
+    GitHub Actions log structure can vary - files may be in a job-specific subdirectory
+    or at the root level. This function searches multiple possible locations.
+
+    Args:
+        logs_base_dir: Base directory where logs are extracted (e.g., "./logs")
+        job_name: Name of the job (will be sanitized)
+        step_number: Step number
+        step_name: Name of the step (will be sanitized)
+
+    Returns:
+        Full path to the log file if found, or None if not found
+    """
+    sanitized_job_name = sanitize_filename(job_name)
+    sanitized_step_name = sanitize_filename(step_name)
+    step_filename = f"{step_number}_{sanitized_step_name}.txt"
+
+    # Primary location: in job-specific subdirectory
+    primary_path = os.path.join(logs_base_dir, sanitized_job_name, step_filename)
+    if os.path.exists(primary_path):
+        return primary_path
+
+    # Fallback location: at root level of logs directory
+    fallback_path = os.path.join(logs_base_dir, step_filename)
+    if os.path.exists(fallback_path):
+        return fallback_path
+
+    # Additional fallback: search for the file recursively in case structure differs
+    # This handles unexpected directory structures
+    try:
+        for root, dirs, files in os.walk(logs_base_dir):
+            if step_filename in files:
+                return os.path.join(root, step_filename)
+    except Exception:
+        pass
+
+    # File not found - return the primary path for error reporting
+    return primary_path
+
+
+def find_system_log_file(logs_base_dir: str, job_name: str) -> str:
+    """
+    Find a system.txt log file in the extracted logs directory.
+
+    Similar to find_log_file, this handles variable directory structures.
+
+    Args:
+        logs_base_dir: Base directory where logs are extracted (e.g., "./logs")
+        job_name: Name of the job (will be sanitized)
+
+    Returns:
+        Full path to the system log file if found, or None if not found
+    """
+    sanitized_job_name = sanitize_filename(job_name)
+    system_filename = "system.txt"
+
+    # Primary location: in job-specific subdirectory
+    primary_path = os.path.join(logs_base_dir, sanitized_job_name, system_filename)
+    if os.path.exists(primary_path):
+        return primary_path
+
+    # Fallback location: at root level of logs directory
+    fallback_path = os.path.join(logs_base_dir, system_filename)
+    if os.path.exists(fallback_path):
+        return fallback_path
+
+    # Additional fallback: search recursively
+    try:
+        for root, dirs, files in os.walk(logs_base_dir):
+            if system_filename in files:
+                # Only return if this is within the job-specific directory
+                if sanitized_job_name in root or root == logs_base_dir:
+                    return os.path.join(root, system_filename)
+    except Exception:
+        pass
+
+    # File not found
+    return None
 
 
 def do_fastcore_decode(obj):
