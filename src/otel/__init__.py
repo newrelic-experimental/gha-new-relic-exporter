@@ -15,6 +15,17 @@ from opentelemetry.sdk.resources import SERVICE_NAME
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
+_providers = []
+
+def shutdown_all():
+    """Flush and shutdown all tracer/logger providers to ensure data is exported."""
+    for provider in _providers:
+        try:
+            provider.force_flush()
+            provider.shutdown()
+        except Exception as e:
+            print(f"Error shutting down provider: {e}")
+
 def create_resource_attributes(atts, GLAB_SERVICE_NAME):
     attributes={SERVICE_NAME: GLAB_SERVICE_NAME}
     for att in atts:
@@ -27,6 +38,7 @@ def get_logger(endpoint, headers, resource, name):
     logger.handlers.clear()
     logger_provider = LoggerProvider(resource=resource)
     logger_provider.add_log_record_processor(BatchLogRecordProcessor(exporter))
+    _providers.append(logger_provider)
     handler = LoggingHandler(level=logging.NOTSET, logger_provider=logger_provider)
     logger.addHandler(handler)
     return logger
@@ -34,9 +46,10 @@ def get_logger(endpoint, headers, resource, name):
 
 def get_tracer(endpoint, headers, resource, tracer):
     processor = BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint + "/v1/traces",headers=headers))
-    tracer = TracerProvider(resource=resource)
-    tracer.add_span_processor(processor)
-    tracer = trace.get_tracer(__name__, tracer_provider=tracer)
+    provider = TracerProvider(resource=resource)
+    provider.add_span_processor(processor)
+    _providers.append(provider)
+    tracer = trace.get_tracer(__name__, tracer_provider=provider)
 
     return tracer
 

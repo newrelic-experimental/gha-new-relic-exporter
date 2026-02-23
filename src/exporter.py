@@ -15,7 +15,7 @@ from opentelemetry import trace
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.trace import Status, StatusCode
-from otel import get_logger, get_tracer, create_resource_attributes
+from otel import get_logger, get_tracer, create_resource_attributes, shutdown_all
 import requests
 import zipfile
 import dateutil.parser as dp
@@ -426,6 +426,11 @@ for job in job_lst:
         print("Unable to process job ->", job["name"], "<- due to error", e)
 
 p_parent.end(end_time=workflow_run_finish_time)
+
+# Flush and shutdown all OTEL providers to ensure all spans/logs are exported
+print("Flushing telemetry data...")
+shutdown_all()
+
 if GHA_DEBUG:
     print("Finished processing Workflow ->", GHA_RUN_NAME, "run id ->", GHA_RUN_ID)
     print("All data exported to New Relic")
