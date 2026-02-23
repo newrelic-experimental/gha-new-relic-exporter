@@ -134,7 +134,7 @@ p_parent = tracer.start_span(
     name=str(GHA_RUN_NAME),
     attributes=atts,
     start_time=do_time(workflow_run_atts["run_started_at"]),
-    kind=trace.SpanKind.SERVER,
+    kind=trace.SpanKind.INTERNAL,
 )
 
 # Download logs
