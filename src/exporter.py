@@ -66,7 +66,7 @@ if OTEL_EXPORTER_OTEL_ENDPOINT in (None, ""):
         OTEL_EXPORTER_OTEL_ENDPOINT = "https://otlp.nr-data.net:4318"
 
 endpoint = "{}".format(OTEL_EXPORTER_OTEL_ENDPOINT)
-headers = "api-key={}".format(NEW_RELIC_LICENSE_KEY)
+headers = {"api-key": NEW_RELIC_LICENSE_KEY}
 
 # Github API client
 api = GhApi(
