@@ -11,12 +11,15 @@ from custom_parser import (
 import json
 import logging
 import os
+import time
 from opentelemetry import trace
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.trace import Status, StatusCode
 from otel import get_logger, get_tracer, create_resource_attributes
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import zipfile
 import dateutil.parser as dp
 
@@ -156,9 +159,33 @@ url1 = (
     + str(GHA_RUN_ID)
     + "/logs"
 )
-r1 = requests.get(url1, headers=req_headers)
+log_session = requests.Session()
+log_session.mount(
+    "https://",
+    HTTPAdapter(
+        max_retries=Retry(
+            total=3,
+            backoff_factor=1,
+            status_forcelist=[502, 503, 504],
+            allowed_methods=["GET"],
+        )
+    ),
+)
+log_download_attempts = 3
+for attempt in range(1, log_download_attempts + 1):
+    try:
+        r1 = log_session.get(url1, headers=req_headers, timeout=30)
+        r1.raise_for_status()
+        log_content = r1.content
+        break
+    except (requests.exceptions.ChunkedEncodingError, requests.exceptions.RequestException) as e:
+        print(f"WARN: Attempt {attempt}/{log_download_attempts} to download logs for run {GHA_RUN_ID} from {url1} failed: {e}")
+        if attempt == log_download_attempts:
+            print(f"ERROR: Giving up downloading logs for run {GHA_RUN_ID} after {log_download_attempts} attempts")
+            raise
+        time.sleep(2 ** attempt)
 with open("log.zip", "wb") as output_file:
-    output_file.write(r1.content)
+    output_file.write(log_content)
 
 with zipfile.ZipFile("log.zip", "r") as zip_ref:
     zip_ref.extractall("./logs")
