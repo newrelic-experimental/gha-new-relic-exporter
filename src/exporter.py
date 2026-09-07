@@ -1,4 +1,3 @@
-from ghapi.all import GhApi
 from custom_parser import (
     do_time,
     do_fastcore_decode,
@@ -8,6 +7,7 @@ from custom_parser import (
     find_log_file,
     find_system_log_file,
 )
+from github_api import create_github_api_client
 import json
 import logging
 import os
@@ -72,10 +72,10 @@ endpoint = "{}".format(OTEL_EXPORTER_OTEL_ENDPOINT)
 headers = "api-key={}".format(NEW_RELIC_LICENSE_KEY)
 
 # Github API client
-api = GhApi(
+api = create_github_api_client(
     owner=GITHUB_REPOSITORY_OWNER,
     repo=GHA_SERVICE_NAME.split("/")[1],
-    token=str(GHA_TOKEN),
+    token=GHA_TOKEN,
 )
 
 # Github API calls
