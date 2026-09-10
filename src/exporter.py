@@ -6,6 +6,7 @@ from custom_parser import (
     sanitize_filename,
     find_log_file,
     find_system_log_file,
+    record_conclusion,
 )
 from github_api import create_github_api_client
 import json
@@ -139,6 +140,7 @@ p_parent = tracer.start_span(
     start_time=do_time(workflow_run_atts["run_started_at"]),
     kind=trace.SpanKind.SERVER,
 )
+record_conclusion(p_parent, workflow_run_atts.get("conclusion"))
 
 # Download logs
 # Have to use python requests due to known issue with ghapi -> https://github.com/fastai/ghapi/issues/119
@@ -224,6 +226,7 @@ for job in job_lst:
                 parse_attributes(job, "steps", "job"), GHA_SERVICE_NAME
             )
         )
+        record_conclusion(child_0, job.get("conclusion"))
         p_sub_context = trace.set_span_in_context(child_0)
 
         # Steps trace span
@@ -278,6 +281,7 @@ for job in job_lst:
                         parse_attributes(step, "", "job"), GHA_SERVICE_NAME
                     )
                 )
+                record_conclusion(child_1, step.get("conclusion"))
                 with trace.use_span(child_1, end_on_exit=False):
                     # Parse logs
                     log_path = find_log_file("./logs", job["name"], step["number"], step["name"])

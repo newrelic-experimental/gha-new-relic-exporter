@@ -5,6 +5,28 @@ import json
 from fastcore.xtras import obj2dict
 import re
 from pathlib import Path
+from opentelemetry.trace import Status, StatusCode
+
+# Conclusions that represent a failed GitHub Actions run, job, or step, mirroring
+# the OpenTelemetry recording-errors semantic conventions.
+# https://opentelemetry.io/docs/specs/semconv/general/recording-errors/
+ERROR_CONCLUSIONS = {"failure", "timed_out", "startup_failure"}
+
+
+def record_conclusion(span, conclusion):
+    """
+    Set `span`'s status to ERROR (with an `error.type` attribute) when
+    `conclusion` is a failed GitHub Actions conclusion. Leaves the status unset
+    otherwise, per the OpenTelemetry recording-errors conventions.
+
+    This is the only source of a workflow run's own span status: the run's
+    root span carries no logs to parse for "##[error]" lines, and a job's or
+    step's status should not depend on whether its log file happens to still be
+    available.
+    """
+    if conclusion in ERROR_CONCLUSIONS:
+        span.set_status(Status(StatusCode.ERROR, conclusion))
+        span.set_attribute("error.type", conclusion)
 
 
 def sanitize_filename(name: str) -> str:
