@@ -15,6 +15,8 @@ from opentelemetry.sdk.resources import SERVICE_NAME
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
+_providers = []
+
 def create_resource_attributes(atts, GLAB_SERVICE_NAME):
     attributes={SERVICE_NAME: GLAB_SERVICE_NAME}
     for att in atts:
@@ -29,16 +31,26 @@ def get_logger(endpoint, headers, resource, name):
     logger_provider.add_log_record_processor(BatchLogRecordProcessor(exporter))
     handler = LoggingHandler(level=logging.NOTSET, logger_provider=logger_provider)
     logger.addHandler(handler)
+    _providers.append(logger_provider)
     return logger
 
 
 def get_tracer(endpoint, headers, resource, tracer):
     processor = BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint,headers=headers))
-    tracer = TracerProvider(resource=resource)
-    tracer.add_span_processor(processor)
-    tracer = trace.get_tracer(__name__, tracer_provider=tracer)
+    provider = TracerProvider(resource=resource)
+    provider.add_span_processor(processor)
+    _providers.append(provider)
+    return trace.get_tracer(tracer, tracer_provider=provider)
 
-    return tracer
+
+def shutdown_providers():
+    # BatchSpanProcessor/BatchLogRecordProcessor export on a timer; without an
+    # explicit flush the last-ended root span can still be queued when the
+    # process exits, so New Relic never sees it and shows the trace group as
+    # "unknown".
+    for provider in _providers:
+        provider.force_flush()
+        provider.shutdown()
 
 # todo
 # def get_meter(endpoint, headers, resource, meter):
