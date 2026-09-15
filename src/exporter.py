@@ -133,6 +133,9 @@ if len(job_lst) == 0:
 # Trace parent
 workflow_run_atts = json.loads(get_workflow_run_by_run_id)
 atts = parse_attributes(workflow_run_atts, "", "workflow")
+# SpanKind.SERVER makes New Relic derive transaction.name from http.route;
+# without it the trace group shows as "unknown".
+atts["http.route"] = str(GHA_RUN_NAME)
 print("Processing Workflow ->", GHA_RUN_NAME, "run id ->", GHA_RUN_ID)
 p_parent = tracer.start_span(
     name=str(GHA_RUN_NAME),
