@@ -17,7 +17,7 @@ from opentelemetry import trace
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.trace import Status, StatusCode
-from otel import get_logger, get_tracer, create_resource_attributes
+from otel import get_logger, get_tracer, create_resource_attributes, shutdown_providers
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -133,9 +133,13 @@ if len(job_lst) == 0:
 # Trace parent
 workflow_run_atts = json.loads(get_workflow_run_by_run_id)
 atts = parse_attributes(workflow_run_atts, "", "workflow")
+# SpanKind.SERVER requires http.method + http.route to derive transaction.name;
+# without them it falls back to "unknown".
+atts["http.method"] = "POST"
+atts["http.route"] = "/" + str(GHA_RUN_NAME).replace(" ", "_") + "/" + str(GHA_RUN_ID)
 print("Processing Workflow ->", GHA_RUN_NAME, "run id ->", GHA_RUN_ID)
 p_parent = tracer.start_span(
-    name=str(GHA_RUN_NAME),
+    name="",
     attributes=atts,
     start_time=do_time(workflow_run_atts["run_started_at"]),
     kind=trace.SpanKind.SERVER,
@@ -457,6 +461,7 @@ for job in job_lst:
         print("Unable to process job ->", job["name"], "<- due to error", e)
 
 p_parent.end(end_time=workflow_run_finish_time)
+shutdown_providers()
 if GHA_DEBUG:
     print("Finished processing Workflow ->", GHA_RUN_NAME, "run id ->", GHA_RUN_ID)
     print("All data exported to New Relic")
