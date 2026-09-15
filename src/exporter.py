@@ -17,7 +17,7 @@ from opentelemetry import trace
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.trace import Status, StatusCode
-from otel import get_logger, get_tracer, create_resource_attributes, shutdown_providers
+from otel import get_logger, get_tracer, create_resource_attributes, flush_all, shutdown_all
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -459,9 +459,10 @@ for job in job_lst:
             print("Finished processing job ->", job["name"])
     except Exception as e:
         print("Unable to process job ->", job["name"], "<- due to error", e)
+    flush_all()
 
 p_parent.end(end_time=workflow_run_finish_time)
-shutdown_providers()
+shutdown_all()
 if GHA_DEBUG:
     print("Finished processing Workflow ->", GHA_RUN_NAME, "run id ->", GHA_RUN_ID)
     print("All data exported to New Relic")
