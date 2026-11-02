@@ -6,5 +6,5 @@ opentelemetry-exporter-otlp-proto-grpc==1.44.0
 opentelemetry-instrumentation-logging==0.65b0
 pyrfc3339==2.1.0
 requests==2.34.2
-urllib3==2.7.0
+urllib3==2.8.0
 python-dateutil==2.9.0.post0
