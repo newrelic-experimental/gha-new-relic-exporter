@@ -1,5 +1,5 @@
 ghapi==2.1.5
-fastcore==2.2.37
+fastcore==2.2.49
 opentelemetry-api==1.45.2
 opentelemetry-sdk==1.45.2
 opentelemetry-exporter-otlp-proto-grpc==1.45.2
