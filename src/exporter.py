@@ -8,7 +8,7 @@ from custom_parser import (
     find_system_log_file,
     record_conclusion,
 )
-from github_api import create_github_api_client
+from github_api import create_github_api_client, list_all_jobs_for_workflow_run
 import json
 import logging
 import os
@@ -83,9 +83,6 @@ api = create_github_api_client(
 get_workflow_run_by_run_id = do_fastcore_decode(
     api.actions.get_workflow_run(GHA_RUN_ID)
 )
-get_workflow_run_jobs_by_run_id = do_fastcore_decode(
-    api.actions.list_jobs_for_workflow_run(GHA_RUN_ID, page=1, per_page=100)
-)
 
 # Set OTEL resources
 global_attributes = {
@@ -118,7 +115,7 @@ tracer = get_tracer(endpoint, headers, global_resource, "tracer")
 
 
 # Ensure we don't export data for new relic exporters
-workflow_run = json.loads(get_workflow_run_jobs_by_run_id)
+workflow_run = list_all_jobs_for_workflow_run(api, GHA_RUN_ID)
 job_lst = []
 for job in workflow_run["jobs"]:
     if str(job["name"]).lower() not in ["new-relic-exporter"]:
