@@ -1,0 +1,29 @@
+name: update major tag
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update_major_tag:
+    name: Move major version tag to the new release
+    if: ${{ !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Move major tag
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          if [[ ! "$TAG" =~ ^v([0-9]+)\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Skipping: $TAG is not a vX.Y.Z tag"
+            exit 0
+          fi
+          MAJOR="v${BASH_REMATCH[1]}"
+          git tag -f "$MAJOR" "$TAG^{commit}"
+          git push -f origin "refs/tags/$MAJOR"
+          echo "Moved $MAJOR to $TAG"

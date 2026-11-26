@@ -50,7 +50,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: new-relic-exporter
-        uses: newrelic-experimental/gha-new-relic-exporter@1.0.1
+        uses: newrelic-experimental/gha-new-relic-exporter@v1
 ```
 
 ## Example
